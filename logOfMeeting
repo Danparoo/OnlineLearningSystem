@@ -1,8 +1,8 @@
-Meeting 0, Week6
+Meeting 1, Week6
 
 (1)Date & time of meeting
 Friday 21th February 2020, 3:00pm-4:00pm
-Location: 03,Business school
+Location: 03, Business school
 
 (2)Attendance
 Peng Dai
@@ -21,3 +21,32 @@ b. Initial idea on what software to build - learning app
 
 (5)Actions 
 Everyone: Read up on technologies required in order to build the app which launched on worksheet page
+
+
+
+Meeting 2, Week7
+
+(1)Date & time of meeting
+Tuesday 25th February 2020, 10:00am-11:00am
+Location: costa, university center
+
+(2)Attendance
+Peng Dai
+Hua Li
+Dan Li
+Mengyi Wang
+
+(3)Key discussion points
+a. Determine system design details
+b. Negotiate for the allocation of the various learning, design, implementation and documentation tasks
+
+(4)Decisions
+a. The learning app has 3 parts:Learning part, exercise part and question part. 
+b. Initial allocation of team member: 
+    Hua Li: GUI
+    Mengyi Wang, Dan Li: Database, server
+    Peng Dai: Client, Test Plan
+    
+(5)Actions 
+a. Everyone: Learning corresponding technologies.
+b. Peng Dai draw the prototype diagrams.
