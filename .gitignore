@@ -1,0 +1,71 @@
+# Compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Packages #
+############
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Logs and databases #
+######################
+*.log
+
+# OS generated files #
+######################
+.DS_Store*
+ehthumbs.db
+Icon?
+Thumbs.db
+
+# Editor Files #
+################
+*~
+*.swp
+.m2
+
+# Build output directies #
+##########################
+/target
+*/target
+/build
+*/build
+
+# IntelliJ specific files/directories #
+#######################################
+out
+.idea
+*.ipr
+*.iws
+*.iml
+atlassian-ide-plugin.xml
+
+# Eclipse specific files/directories #
+######################################
+.classpath
+.project
+.settings
+.metadata
+/bin/
+
+<<<<<<< HEAD
+# UML
+*.uml
+*.jpg
+*.jpeg
+*.png
+=======
+# Manifest files
+*.MF
+>>>>>>> d5212ef0f4b788ad6e61c478f7afcd98bdb638ec
