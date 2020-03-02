@@ -1,5 +1,5 @@
 package ChartClient;
 
 public interface MessageListener {
-    public void onMessage(String fromLogin,String msgBody);
+	public void onMessage(String fromLogin, String msgBody);
 }

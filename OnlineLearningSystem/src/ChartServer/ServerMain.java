@@ -1,17 +1,12 @@
 package ChartServer;
 
-
-
-/**
- * Created by jim on 4/18/17.
- */
 public class ServerMain {
-    public static void main(String[] args) {
+	public static void main(String[] args) {
 
-        int port = 8818;
-        Server server = new Server(port);
+		int port = 8818;
+		Server server = new Server(port);
 
-        server.start();
-    }
+		server.start();
+	}
 
 }

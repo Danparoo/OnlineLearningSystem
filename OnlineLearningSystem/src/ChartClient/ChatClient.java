@@ -7,172 +7,172 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 public class ChatClient {
-    private final String serverName;
-    private final int serverPort;
-    private Socket socket;
-    private OutputStream serverOut;
-    private InputStream serverIn;
-    private BufferedReader bufferedIn;
+	private final String serverName;
+	private final int serverPort;
+	private Socket socket;
+	private OutputStream serverOut;
+	private InputStream serverIn;
+	private BufferedReader bufferedIn;
 
-    private ArrayList<UserStatusListener> userStatusListeners = new ArrayList<>();
-    private ArrayList<MessageListener> messageListeners = new ArrayList<>();
+	private ArrayList<UserStatusListener> userStatusListeners = new ArrayList<>();
+	private ArrayList<MessageListener> messageListeners = new ArrayList<>();
 
-    public ChatClient(String serverName, int serverPort) {
-        this.serverName = serverName;
-        this.serverPort = serverPort;
+	public ChatClient(String serverName, int serverPort) {
+		this.serverName = serverName;
+		this.serverPort = serverPort;
 
-    }
+	}
 
-    public static void main(String[] args) throws IOException {
-        ChatClient client = new ChatClient("localhost", 8818);
-        client.addUserStatusListener(new UserStatusListener() {
-            @Override
-            public void online(String login) {
-                System.out.println("ONLINE: " + login);
-            }
+	public void msg(String sendTo, String msgBody) throws IOException {
+		String cmd = "msg " + sendTo + " " + msgBody + "\n";
+		serverOut.write(cmd.getBytes());
+	}
 
-            @Override
-            public void offline(String login) {
-                System.out.println("OFFLINE: " + login);
+	public void logoff() throws IOException {
+		String cmd = "logoff" + "\n";
+		serverOut.write(cmd.getBytes());
+	}
 
-            }
-        });
-        client.addMessageListener(new MessageListener() {
-            @Override
-            public void onMessage(String fromLogin, String msgBody) {
-                System.out.println("You got a message from " + fromLogin + " ===>" + msgBody);
-            }
-        });
+	public boolean login(String login, String password) throws IOException {
+		String cmd = "login " + login + " " + password + "\n";
+		serverOut.write(cmd.getBytes());
+		String response = bufferedIn.readLine();
+		System.out.println("Response Line: " + response);
 
-        if (!client.connect()) {
-            System.err.println("Connect failed");
-        } else {
-            System.out.println("Connect successful");
+		if ("ok login".equalsIgnoreCase(response)) {
+			startMessageReader();
+			return true;
+		} else {
+			return false;
+		}
 
-            if (client.login("guest", "guest")) {
-                System.out.println("Login successful");
+	}
 
-                client.msg("DP", "hello world!");
-            } else {
-                System.out.println("Login failed");
-            }
-            //client.logoff();
-        }
-    }
+	private void startMessageReader() {
+		Thread t = new Thread() {
+			@Override
+			public void run() {
+				readMessageLoop();
+			}
+		};
+		t.start();
+	}
 
-    public void msg(String sendTo, String msgBody) throws IOException {
-        String cmd = "msg " + sendTo + " " + msgBody + "\n";
-        serverOut.write(cmd.getBytes());
-    }
+	private void readMessageLoop() {
+		try {
+			String line;
+			while ((line = bufferedIn.readLine()) != null) {
+				String[] tokens = StringUtils.split(line);
+				if (tokens != null && tokens.length > 0) {
+					String cmd = tokens[0];
+					if ("online".equalsIgnoreCase(cmd)) {
+						handleOnline(tokens);
+					} else if ("offline".equalsIgnoreCase(cmd)) {
+						handleOffline(tokens);
+					} else if ("msg".equalsIgnoreCase(cmd)) {
+						String[] tokensMsg = StringUtils.split(line, null, 3);
+						handleMessage(tokensMsg);
+					}
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			try {
+				socket.close();
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+		}
 
-    public void logoff() throws IOException {
-        String cmd = "logoff" + "\n";
-        serverOut.write(cmd.getBytes());
-    }
+	}
 
-    public boolean login(String login, String password) throws IOException {
-        String cmd = "login " + login + " " + password + "\n";
-        serverOut.write(cmd.getBytes());
-        String response = bufferedIn.readLine();
-        System.out.println("Response Line: " + response);
+	private void handleMessage(String[] tokensMsg) {
+		String login = tokensMsg[1];
+		String msgBpdy = tokensMsg[2];
 
-        if ("ok login".equalsIgnoreCase(response)) {
-            startMessageReader();
-            return true;
-        } else {
-            return false;
-        }
+		for (MessageListener listener : messageListeners) {
+			listener.onMessage(login, msgBpdy);
+		}
+	}
 
-    }
+	private void handleOffline(String[] tokens) {
+		String login = tokens[1];
+		for (UserStatusListener listener : userStatusListeners) {
+			listener.offline(login);
+		}
+	}
 
-    private void startMessageReader() {
-        Thread t = new Thread() {
-            @Override
-            public void run() {
-                readMessageLoop();
-            }
-        };
-        t.start();
-    }
+	private void handleOnline(String[] tokens) {
+		String login = tokens[1];
+		for (UserStatusListener listener : userStatusListeners) {
+			listener.online(login);
+		}
+	}
 
-    private void readMessageLoop() {
-        try {
-            String line;
-            while ((line = bufferedIn.readLine()) != null) {
-                String[] tokens = StringUtils.split(line);
-                if (tokens != null && tokens.length > 0) {
-                    String cmd = tokens[0];
-                    if ("online".equalsIgnoreCase(cmd)) {
-                        handleOnline(tokens);
-                    } else if ("offline".equalsIgnoreCase(cmd)) {
-                        handleOffline(tokens);
-                    } else if ("msg".equalsIgnoreCase(cmd)) {
-                        String[] tokensMsg = StringUtils.split(line, null, 3);
-                        handleMessage(tokensMsg);
-                    }
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            try {
-                socket.close();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        }
+	public boolean connect() {
+		try {
+			this.socket = new Socket(serverName, serverPort);
+			System.out.println("Client port is " + socket.getLocalPort());
+			this.serverOut = socket.getOutputStream();
+			this.serverIn = socket.getInputStream();
+			this.bufferedIn = new BufferedReader(new InputStreamReader(serverIn));
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
 
-    }
+	public void addUserStatusListener(UserStatusListener listener) {
+		userStatusListeners.add(listener);
+	}
 
-    private void handleMessage(String[] tokensMsg) {
-        String login = tokensMsg[1];
-        String msgBpdy = tokensMsg[2];
+	public void removeUserStatusListener(UserStatusListener listener) {
+		userStatusListeners.remove(listener);
+	}
 
-        for (MessageListener listener : messageListeners) {
-            listener.onMessage(login, msgBpdy);
-        }
-    }
+	public void addMessageListener(MessageListener listener) {
+		messageListeners.add(listener);
+	}
 
-    private void handleOffline(String[] tokens) {
-        String login = tokens[1];
-        for (UserStatusListener listener : userStatusListeners) {
-            listener.offline(login);
-        }
-    }
+	public void removeaMessageListener(MessageListener listener) {
+		messageListeners.remove(listener);
+	}
 
-    private void handleOnline(String[] tokens) {
-        String login = tokens[1];
-        for (UserStatusListener listener : userStatusListeners) {
-            listener.online(login);
-        }
-    }
+	public static void main(String[] args) throws IOException {
+		ChatClient client = new ChatClient("localhost", 8818);
+		client.addUserStatusListener(new UserStatusListener() {
+			@Override
+			public void online(String login) {
+				System.out.println("ONLINE: " + login);
+			}
 
-    public boolean connect() {
-        try {
-            this.socket = new Socket(serverName, serverPort);
-            System.out.println("Client port is " + socket.getLocalPort());
-            this.serverOut = socket.getOutputStream();
-            this.serverIn = socket.getInputStream();
-            this.bufferedIn = new BufferedReader(new InputStreamReader(serverIn));
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
+			@Override
+			public void offline(String login) {
+				System.out.println("OFFLINE: " + login);
 
-    public void addUserStatusListener(UserStatusListener listener) {
-        userStatusListeners.add(listener);
-    }
+			}
+		});
+		client.addMessageListener(new MessageListener() {
+			@Override
+			public void onMessage(String fromLogin, String msgBody) {
+				System.out.println("You got a message from " + fromLogin + " ===>" + msgBody);
+			}
+		});
 
-    public void removeUserStatusListener(UserStatusListener listener) {
-        userStatusListeners.remove(listener);
-    }
+		if (!client.connect()) {
+			System.err.println("Connect failed");
+		} else {
+			System.out.println("Connect successful");
 
-    public void addMessageListener(MessageListener listener) {
-        messageListeners.add(listener);
-    }
+			if (client.login("guest", "guest")) {
+				System.out.println("Login successful");
 
-    public void removeaMessageListener(MessageListener listener) {
-        messageListeners.remove(listener);
-    }
+				client.msg("DP", "hello world!");
+			} else {
+				System.out.println("Login failed");
+			}
+			// client.logoff();
+		}
+	}
 }
