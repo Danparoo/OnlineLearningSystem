@@ -17,12 +17,14 @@ User & Server
 
 Commands:
 
+	//register <user> <password> <password>
+
     login <user> <password>
     logoff
 
     msg <user>  body....
-    guest: "msg jim Hello World" <-- sent
-    jim: "msg guest Hello World" <-- recv
+    	guest: "msg jim Hello World" <-- sent
+   	 	jim: "msg guest Hello World" <-- recv
 
 
     #topic <-- chatroom / group chat
