@@ -74,13 +74,16 @@ c. 讨论本周该做的事情
 
 (4)Decisions
 a. 确定好了本周应该完成的事
-	完成对GUI的美化，可能的话，全部转换成JavaFX
-	完善聊天信息，加入消息的日期时间
+	完成对GUI的美化，可能的话，全部转换成JavaFX, SB 
 	group chat GUI实现（服务器已经完成）
+	
+	完善聊天信息，加入消息的日期时间
 	注册功能的实现，从客户端、服务器到gui。
+	
 	数据库连接，并且建立用户信息表（用户名密码）、聊天记录表
 	关于Git与Eclipse的使用：https://blog.csdn.net/jhg1204/article/details/45013491
     
 (5)Actions 
-a. 
-b. 
+a. Hua Li 完成对GUI的美化，可能的话，全部转换成JavaFX
+			group chat GUI实现（服务器已经完成）
+b. Mengyi Wang 数据库连接，并且建立用户信息表（用户名密码）、聊天记录表
