@@ -1,4 +1,4 @@
-package ChartClient;
+package Client;
 
 import org.apache.commons.lang3.StringUtils;
 

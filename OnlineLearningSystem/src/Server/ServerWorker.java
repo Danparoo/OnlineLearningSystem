@@ -1,4 +1,4 @@
-package ChartServer;
+package Server;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -50,6 +50,9 @@ public class ServerWorker extends Thread {
 				} else if ("login".equalsIgnoreCase(cmd)) {
 					handleLogin(outputStream, tokens);
 
+				} else if ("register".equalsIgnoreCase(cmd)) {
+					handleRegister(tokens);
+
 				} else if ("msg".equalsIgnoreCase(cmd)) {
 					String[] tokensMsg = StringUtils.split(line, null, 3);
 					handleMessege(tokensMsg);
@@ -68,6 +71,48 @@ public class ServerWorker extends Thread {
 		}
 
 		clientSocket.close();
+	}
+
+	private void handleRegister(String[] tokens) {
+		// TODO Auto-generated method stub
+		if (tokens.length == 4) {
+			String login = tokens[1];
+			String password = tokens[2];
+			String password2 = tokens[3];
+
+			// if (database.isUserExisted()) {
+			if (login == "unexisted") {
+				String msg = "The username is already existed\n";
+				System.out.println("register failed because the username is already existed");
+				try {
+					outputStream.write(msg.getBytes());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
+			} else if (password != password2) {
+				// The method needed
+				// database.addUser(login,password);
+				String msg = "The 2 passwords entered is different\n";
+				System.out.println("register failed because the 2 passwords entered is different\n");
+				try {
+					outputStream.write(msg.getBytes());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
+			} else {
+				// The method needed
+				// database.addUser(login,password);
+				String msg = "ok register\n";
+				try {
+					outputStream.write(msg.getBytes());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
 	}
 
 	private void handleLeave(String[] tokens) {
@@ -133,6 +178,8 @@ public class ServerWorker extends Thread {
 			String login = tokens[1];
 			String password = tokens[2];
 
+			
+			// if
 			if (login.equals("guest") && password.equals("guest") || login.equals("DP") && password.equals("1996")) {
 				String msg = "ok login\n";
 				try {

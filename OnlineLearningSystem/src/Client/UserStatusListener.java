@@ -1,4 +1,4 @@
-package ChartClient;
+package Client;
 
 public interface UserStatusListener {
 	public void online(String login);
