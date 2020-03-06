@@ -45,6 +45,19 @@ public class ChatClient {
 		} else {
 			return false;
 		}
+	}
+	
+	public boolean register(String login, String password,String password2) throws IOException {
+		String cmd = "login " + login + " " + password+ " " + password2 + "\n";
+		serverOut.write(cmd.getBytes());
+		String response = bufferedIn.readLine();
+		System.out.println("Response Line: " + response);
+
+		if ("ok register\n".equalsIgnoreCase(response)) {
+			return true;
+		} else {
+			return false;
+		}
 
 	}
 

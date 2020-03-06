@@ -80,6 +80,7 @@ public class ServerWorker extends Thread {
 			String password = tokens[2];
 			String password2 = tokens[3];
 
+			// A method needed
 			// if (database.isUserExisted()) {
 			if (login == "unexisted") {
 				String msg = "The username is already existed\n";
@@ -91,8 +92,6 @@ public class ServerWorker extends Thread {
 				}
 
 			} else if (password != password2) {
-				// The method needed
-				// database.addUser(login,password);
 				String msg = "The 2 passwords entered is different\n";
 				System.out.println("register failed because the 2 passwords entered is different\n");
 				try {
@@ -102,7 +101,7 @@ public class ServerWorker extends Thread {
 				}
 
 			} else {
-				// The method needed
+				// A method needed
 				// database.addUser(login,password);
 				String msg = "ok register\n";
 				try {
@@ -144,8 +143,8 @@ public class ServerWorker extends Thread {
 		List<ServerWorker> workerList = server.getWorkerList();
 		for (ServerWorker worker : workerList) {
 			if (isTopic) {
-				if (worker.isMemberOfTopic(sendTo)) {
-					String outMsg = "msg " + sendTo + ":" + login + " " + body + "\n";
+				if (worker.isMemberOfTopic(sendTo)&&this.isMemberOfTopic(sendTo)) {
+					String outMsg = "msg " + sendTo + ":" + login + ": " + body + "\n";
 					worker.send(outMsg);
 				}
 			} else if (sendTo.equalsIgnoreCase(worker.getLogin())) {
@@ -179,7 +178,7 @@ public class ServerWorker extends Thread {
 			String password = tokens[2];
 
 			
-			// if
+			// if (database.isValidUser(username , password)){
 			if (login.equals("guest") && password.equals("guest") || login.equals("DP") && password.equals("1996")) {
 				String msg = "ok login\n";
 				try {

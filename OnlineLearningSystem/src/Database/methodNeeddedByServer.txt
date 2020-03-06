@@ -7,10 +7,10 @@ This file declare the methods needed by Server
 	boolean database.isValidUser(username, password)
 	boolean database.addUser(username, password)
 	
-2. For the message table 
+2. For the message table, time
 	treeSet<String[]> getMessage(fromUser,toUser,msg,time)
 	boolean database.addMeassge(fromUser,toUser,msg,time)
-		
+	
 		
 		
 		
