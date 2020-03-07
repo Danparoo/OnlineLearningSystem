@@ -5,6 +5,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class MessagePane extends JPanel implements MessageListener {
 
@@ -31,7 +33,9 @@ public class MessagePane extends JPanel implements MessageListener {
 				try {
 					String text = inputField.getText();
 					client.msg(login, text);
+					String nowtime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 					listModel.addElement("You: " + text);
+					listModel.addElement(nowtime);
 					inputField.setText("");
 				} catch (IOException ex) {
 					ex.printStackTrace();
@@ -41,10 +45,13 @@ public class MessagePane extends JPanel implements MessageListener {
 	}
 
 	@Override
-	public void onMessage(String fromLogin, String msgBody) {
+	public void onMessage(String fromLogin, String msgBody,String msgTimeStamp) {
 		if (login.equalsIgnoreCase(fromLogin)) {
+			String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(Long.parseLong(msgTimeStamp)));
 			String line = fromLogin + ": " + msgBody;
 			listModel.addElement(line);
+			listModel.addElement(time);
+			
 		}
 	}
 }

@@ -46,9 +46,9 @@ public class ChatClient {
 			return false;
 		}
 	}
-	
-	public boolean register(String login, String password,String password2) throws IOException {
-		String cmd = "login " + login + " " + password+ " " + password2 + "\n";
+
+	public boolean register(String login, String password, String password2) throws IOException {
+		String cmd = "login " + login + " " + password + " " + password2 + "\n";
 		serverOut.write(cmd.getBytes());
 		String response = bufferedIn.readLine();
 		System.out.println("Response Line: " + response);
@@ -83,7 +83,7 @@ public class ChatClient {
 					} else if ("offline".equalsIgnoreCase(cmd)) {
 						handleOffline(tokens);
 					} else if ("msg".equalsIgnoreCase(cmd)) {
-						String[] tokensMsg = StringUtils.split(line, null, 3);
+						String[] tokensMsg = StringUtils.split(line, null, 4);
 						handleMessage(tokensMsg);
 					}
 				}
@@ -101,10 +101,12 @@ public class ChatClient {
 
 	private void handleMessage(String[] tokensMsg) {
 		String login = tokensMsg[1];
-		String msgBpdy = tokensMsg[2];
+		String msgTimeStamp = tokensMsg[2];
+		String msgBody = tokensMsg[3];
+
 
 		for (MessageListener listener : messageListeners) {
-			listener.onMessage(login, msgBpdy);
+			listener.onMessage(login, msgBody, msgTimeStamp);
 		}
 	}
 
@@ -168,8 +170,8 @@ public class ChatClient {
 		});
 		client.addMessageListener(new MessageListener() {
 			@Override
-			public void onMessage(String fromLogin, String msgBody) {
-				System.out.println("You got a message from " + fromLogin + " ===>" + msgBody);
+			public void onMessage(String fromLogin, String msgBody, String msgTimeStamp) {
+				System.out.println("You got a message from " + fromLogin + " ===>" + msgBody + " " + msgTimeStamp);
 			}
 		});
 

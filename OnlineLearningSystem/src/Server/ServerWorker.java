@@ -143,12 +143,13 @@ public class ServerWorker extends Thread {
 		List<ServerWorker> workerList = server.getWorkerList();
 		for (ServerWorker worker : workerList) {
 			if (isTopic) {
-				if (worker.isMemberOfTopic(sendTo)&&this.isMemberOfTopic(sendTo)) {
+				if (worker.isMemberOfTopic(sendTo) && this.isMemberOfTopic(sendTo)) {
 					String outMsg = "msg " + sendTo + ":" + login + ": " + body + "\n";
 					worker.send(outMsg);
 				}
 			} else if (sendTo.equalsIgnoreCase(worker.getLogin())) {
-				String outMsg = "msg " + login + " " + body + "\n";
+				long msgTimeStamp = System.currentTimeMillis();
+				String outMsg = "msg " + login+" " +msgTimeStamp+ " " + body +  "\n";
 				worker.send(outMsg);
 			}
 		}
@@ -177,7 +178,6 @@ public class ServerWorker extends Thread {
 			String login = tokens[1];
 			String password = tokens[2];
 
-			
 			// if (database.isValidUser(username , password)){
 			if (login.equals("guest") && password.equals("guest") || login.equals("DP") && password.equals("1996")) {
 				String msg = "ok login\n";
