@@ -68,22 +68,21 @@ Dan Li
 Mengyi Wang
 
 (3)Key discussion points
-a. 每个人说明学习到什么程度了
-b. 一起学习第一个版本的系统
-c. 讨论本周该做的事情
+a. Everyone explains how much they have learned
+b. Learn the first version of the system together
+c. Discuss what to do this week
 
 (4)Decisions
-a. 确定好了本周应该完成的事
-	完成对GUI的美化，可能的话，全部转换成JavaFX, SB 
-	group chat GUI实现（服务器已经完成）
+a.Determined what should be done this week
+    Complete the beautification of the GUI, convert all to JavaFX, SB if possible
+    group chat GUI implementation (server has completed)
 	
-	完善聊天信息，加入消息的日期时间
-	注册功能的实现，从客户端、服务器到gui。
+    Implementation of registration functions, from client, server to gui.
 	
-	数据库连接，并且建立用户信息表（用户名密码）、聊天记录表
-	关于Git与Eclipse的使用：https://blog.csdn.net/jhg1204/article/details/45013491
+    Database connection, and build the users table, message table
+	about the using method of Git and Eclipse：https://blog.csdn.net/jhg1204/article/details/45013491
     
 (5)Actions 
-a. Hua Li 完成对GUI的美化，可能的话，全部转换成JavaFX
-			group chat GUI实现（服务器已经完成）
-b. Mengyi Wang 数据库连接，并且建立用户信息表（用户名密码）、聊天记录表
+a. Hua Li Complete the beautification of the GUI, and convert all to JavaFX if possible
+			group chat GUI implementation (server has completed)
+b. Mengyi Wang Database connection, and build the users table, message table,group table
