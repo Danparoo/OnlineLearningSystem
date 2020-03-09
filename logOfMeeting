@@ -86,3 +86,28 @@ a.Determined what should be done this week
 a. Hua Li Complete the beautification of the GUI, and convert all to JavaFX if possible
 			group chat GUI implementation (server has completed)
 b. Mengyi Wang Database connection, and build the users table, message table,group table
+
+
+
+
+
+
+Meeting 4, Week9
+
+主要任务实现历史消息、群聊功能
+
+LD，WMY：画ER图
+题库
+report 初稿，database写进去（Google drive）
+目录发过
+
+
+DP：连接
+群聊server端实现
+消息传输
+
+
+LH：
+按钮变成标签页
+按钮功能衔接
+群聊功能 contacts旁+功能查看在线人并邀请
