@@ -17,7 +17,7 @@ User & Server
 
 Commands:
 
-	//register <user> <password> <password>
+	register <user> <password> <password>
 
     login <user> <password>
     logoff
@@ -27,8 +27,9 @@ Commands:
    	 	jim: "msg guest Hello World" <-- recv
 
 
-    #topic <-- chatroom / group chat
+    #topic <-- group chat
     join #topic
+    invite #topic <user1> <user2> <user3>
     leave #topic
     send: msg #topic body...
     recv: msg #topic:<login> body ...
