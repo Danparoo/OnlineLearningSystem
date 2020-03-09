@@ -6,6 +6,8 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import Database.Database;
+
 public class Server extends Thread {
 
 	private final int serverPort;
@@ -23,6 +25,7 @@ public class Server extends Thread {
 
 	@Override
 	public void run() {
+		Database.makeConnection();
 		try {
 			ServerSocket serverSocket = new ServerSocket(serverPort);
 			while (true) {

@@ -60,6 +60,9 @@ public class ServerWorker extends Thread {
 				} else if ("join".equalsIgnoreCase(cmd)) {
 					handleJoin(tokens);
 
+				} else if ("invite".equalsIgnoreCase(cmd)) {
+					handleInvite(tokens);
+
 				} else if ("leave".equalsIgnoreCase(cmd)) {
 					handleLeave(tokens);
 
@@ -73,6 +76,24 @@ public class ServerWorker extends Thread {
 		clientSocket.close();
 	}
 
+	private void handleInvite(String[] tokens) {
+		// TODO Auto-generated method stub
+		if (tokens.length > 3) {
+			String topicName=tokens[1];
+			for (int i = 2; i < tokens.length; i++) {
+				List<ServerWorker> workerList = server.getWorkerList();
+				for (ServerWorker worker : workerList) {
+					if (tokens[i].equalsIgnoreCase(worker.getLogin())) {
+						String[] joinCmd = {
+								"join", topicName
+						};
+						worker.handleJoin(joinCmd);
+					}
+				}
+			}
+		}
+	}
+
 	private void handleRegister(String[] tokens) {
 		// TODO Auto-generated method stub
 		if (tokens.length == 4) {
@@ -82,7 +103,7 @@ public class ServerWorker extends Thread {
 
 			// A method needed
 			// if (database.isUserExisted()) {
-			if (login == "unexisted") {
+			if (login == "existed") {
 				String msg = "The username is already existed\n";
 				System.out.println("register failed because the username is already existed");
 				try {
@@ -144,12 +165,13 @@ public class ServerWorker extends Thread {
 		for (ServerWorker worker : workerList) {
 			if (isTopic) {
 				if (worker.isMemberOfTopic(sendTo) && this.isMemberOfTopic(sendTo)) {
-					String outMsg = "msg " + sendTo + ":" + login + ": " + body + "\n";
+					long msgTimeStamp = System.currentTimeMillis();
+					String outMsg = "msg " + sendTo + ":" + login + msgTimeStamp + ": " + body + "\n";
 					worker.send(outMsg);
 				}
 			} else if (sendTo.equalsIgnoreCase(worker.getLogin())) {
 				long msgTimeStamp = System.currentTimeMillis();
-				String outMsg = "msg " + login+" " +msgTimeStamp+ " " + body +  "\n";
+				String outMsg = "msg " + login + " " + msgTimeStamp + " " + body + "\n";
 				worker.send(outMsg);
 			}
 		}
