@@ -1,0 +1,17 @@
+This file declare the methods needed by Server
+
+
+1. For the User table
+	// return a boolean value to indicate weather a username is already existed
+	boolean database.isUserExisted(username)
+	boolean database.isValidUser(username, password)
+	boolean database.addUser(username, password)
+	
+2. For the message table, time
+	treeSet<String[]> getMessage(fromUser,toUser,msg,time)
+	boolean database.addMeassge(fromUser,toUser,msg,time)
+	
+		
+		
+		
+
