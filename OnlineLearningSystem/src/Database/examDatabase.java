@@ -61,7 +61,90 @@ public class examDatabase {
         }
         return rowCount;
     }
-
+public static synchronized String getCertainQuestion (int questionid) {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT * FROM question WHERE questionid = ?"))
+        {
+            statement.setInt(1, questionid);
+            ResultSet rs = statement.executeQuery();
+            rs.next();
+                String questioncontent= rs.getString("questioncontent");
+            return questioncontent;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    public static synchronized String getOptionA (int questionid) {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT * FROM question WHERE questionid = ?"))
+        {
+            statement.setInt(1, questionid);
+            ResultSet rs = statement.executeQuery();
+            rs.next();
+            String optionA= rs.getString("a");
+            return optionA;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    public static synchronized String getOptionB (int questionid) {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT * FROM question WHERE questionid = ?"))
+        {
+            statement.setInt(1, questionid);
+            ResultSet rs = statement.executeQuery();
+            rs.next();
+            String optionB= rs.getString("b");
+            return optionB;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    public static synchronized String getOptionC (int questionid) {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT * FROM question WHERE questionid = ?"))
+        {
+            statement.setInt(1, questionid);
+            ResultSet rs = statement.executeQuery();
+            rs.next();
+            String optionC= rs.getString("c");
+            return optionC;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    public static synchronized String getOptionD (int questionid) {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT * FROM question WHERE questionid = ?"))
+        {
+            statement.setInt(1, questionid);
+            ResultSet rs = statement.executeQuery();
+            rs.next();
+            String optionD= rs.getString("d");
+            return optionD;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    public static synchronized String getAnswer (int questionid) {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT * FROM question WHERE questionid = ?"))
+        {
+            statement.setInt(1, questionid);
+            ResultSet rs = statement.executeQuery();
+            rs.next();
+            String answer= rs.getString("correctans");
+            return answer;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
     public static synchronized void addNewQuestion(Question question){
         try (PreparedStatement statement = connection.prepareStatement(
                 "INSERT INTO question (questionid,questioncontent,a,b,c,d,correctans) VALUES (?, ?, ?, ?, ?, ?, ?)"))
