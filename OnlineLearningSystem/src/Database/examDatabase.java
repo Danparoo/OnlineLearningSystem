@@ -44,6 +44,23 @@ public class examDatabase {
             return false;
         }
     }
+    
+    public static synchronized int countQuestion() throws SQLException {
+        int rowCount = 0;
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT * FROM question"))
+        {
+            ResultSet rs = statement.executeQuery();
+
+            while(rs.next())
+            {
+                rowCount++;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return rowCount;
+    }
 
     public static synchronized void addNewQuestion(Question question){
         try (PreparedStatement statement = connection.prepareStatement(
@@ -63,12 +80,12 @@ public class examDatabase {
     }
 
     public static void main(String[] args) {
-        makeConnection();
-      /*  System.out.println(isAnswerRight(2,"d"));
-        Question question1=new Question(5, "five plus five equals?", "one", "ten", "eleven", "seven", "b");
-	    addNewQuestion(question1);
-
-       */
+      makeConnection();
+      //  System.out.println(isAnswerRight(2,"d"));
+       // System.out.println(countQuestion());
+       // Question question1=new Question(5, "five plus five equals?", "one", "ten", "eleven", "seven", "b");
+	   // addNewQuestion(question1);
+        closeConnection();
     }
 }
 
