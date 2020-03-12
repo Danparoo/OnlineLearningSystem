@@ -6,9 +6,10 @@ import java.sql.Timestamp;
 public class Question implements Serializable {
     private int questionid;
     private String questioncontent, a, b, c, d, correctans;
-    public Question(int questionid, String a, String b, String c, String d, String correctans) {
+    public Question(int questionid, String questioncontent, String a, String b, String c, String d, String correctans) {
         super();
         this.questionid = questionid;
+        this.questioncontent = questioncontent;
         this.a = a;
         this.b = b;
         this.c = c;
@@ -20,6 +21,12 @@ public class Question implements Serializable {
     }
     public void setQuestionid(int questionid) {
         this.questionid = questionid;
+    }
+    public String getQuestioncontent() {
+        return questioncontent;
+    }
+    public void setQuestioncontent(String questioncontent) {
+        this.questioncontent = questioncontent;
     }
     public String getA() {
         return a;
