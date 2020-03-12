@@ -90,24 +90,31 @@ b. Mengyi Wang Database connection, and build the users table, message table,gro
 
 
 
+Meeting 4, Week 9
 
+(1)Date & time of meeting
+Tuesday 9th March 2020, 1:00pm-5:00pm
+Location: Lab, Computer Science Building
 
-Meeting 4, Week9
+(2)Attendance
+Peng Dai
+Hua Li
+Dan Li
+Mengyi Wang
 
-主要任务实现历史消息、群聊功能
+(3)Actions
+a. Everyone explains how much everyone have done the last week
+b. Combine the first version of the system together
+c. Discuss what to do this week
 
-LD，WMY：画ER图
-题库
-report 初稿，database写进去（Google drive）
-目录发过
-
-
-DP：连接
-群聊server端实现
-消息传输
-
-
-LH：
-按钮变成标签页
-按钮功能衔接
-群聊功能 contacts旁+功能查看在线人并邀请
+(4)The tasks this week
+Main task: complete the functions of message history and group talk
+Tasks for each one:
+a. Mengyi Wang: draw ER figure of databases, online exam system
+b. Dan Li: write the draft of project report, online exam system
+c. Peng Dai: Make connections, complete the group talk server system, complete the 
+   message transfer system.
+d. Hua Li: GUI jobs, make buttons of talking windows into label pages, make 
+   connections between functions and buttons, complete the GUI part of group talk 
+   (add a “+” tab to the talking window to realize the functions of inviting and 
+   checking the online friends).
