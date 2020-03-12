@@ -6,6 +6,8 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import Database.Database;
+
 
 public class Server extends Thread {
 
@@ -24,7 +26,7 @@ public class Server extends Thread {
 
 	@Override
 	public void run() {
-		//Database.makeConnection();
+		Database.makeConnection();
 		try {
 			ServerSocket serverSocket = new ServerSocket(serverPort);
 			while (true) {
@@ -38,6 +40,7 @@ public class Server extends Thread {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		Database.closeConnection();
 	}
 
 	public void removeWorker(ServerWorker serverWorker) {

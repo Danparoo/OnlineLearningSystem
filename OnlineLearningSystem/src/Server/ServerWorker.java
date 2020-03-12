@@ -2,6 +2,8 @@ package Server;
 
 import org.apache.commons.lang3.StringUtils;
 
+import Database.Database;
+
 import java.io.*;
 import java.net.Socket;
 import java.util.Date;
@@ -76,17 +78,20 @@ public class ServerWorker extends Thread {
 		clientSocket.close();
 	}
 
+	// format: invite #topic <user1> <user2>
 	private void handleInvite(String[] tokens) {
 		// TODO Auto-generated method stub
-		if (tokens.length > 3) {
-			String topicName=tokens[1];
+
+		if (tokens.length > 3 && tokens[1].charAt(0) == '#') {
+
+			String topicName = tokens[1];
+			String[] selfJoinCmd = { "join", topicName };
+			handleJoin(selfJoinCmd);
 			for (int i = 2; i < tokens.length; i++) {
 				List<ServerWorker> workerList = server.getWorkerList();
 				for (ServerWorker worker : workerList) {
 					if (tokens[i].equalsIgnoreCase(worker.getLogin())) {
-						String[] joinCmd = {
-								"join", topicName
-						};
+						String[] joinCmd = { "join", topicName };
 						worker.handleJoin(joinCmd);
 					}
 				}
@@ -101,9 +106,7 @@ public class ServerWorker extends Thread {
 			String password = tokens[2];
 			String password2 = tokens[3];
 
-			// A method needed
-			// if (database.isUserExisted()) {
-			if (login .equals ("existed")) {
+			if (Database.isUserExisted(login)) {
 				String msg = "The username is already existed\n";
 				System.out.println("register failed because the username is already existed");
 				try {
@@ -112,7 +115,7 @@ public class ServerWorker extends Thread {
 					e.printStackTrace();
 				}
 
-			} else if (!password.equals(password2) ) {
+			} else if (!password.equals(password2)) {
 				String msg = "The 2 passwords entered is different\n";
 				System.out.println("register failed because the 2 passwords entered is different\n");
 				try {
@@ -122,8 +125,7 @@ public class ServerWorker extends Thread {
 				}
 
 			} else {
-				// A method needed
-				// database.addUser(login,password);
+				Database.addUser(login, password);
 				String msg = "ok register\n";
 				try {
 					outputStream.write(msg.getBytes());
@@ -147,9 +149,11 @@ public class ServerWorker extends Thread {
 	}
 
 	private void handleJoin(String[] tokens) {
-		if (tokens.length > 1) {
+
+		if (tokens.length > 1 && tokens[1].charAt(0) == '#') {
 			String topic = tokens[1];
 			topicSet.add(topic);
+			System.out.println(login + " join " + topic);
 		}
 	}
 
@@ -200,8 +204,8 @@ public class ServerWorker extends Thread {
 			String login = tokens[1];
 			String password = tokens[2];
 
-			// if (database.isValidUser(username , password)){
-			if (login.equals("guest2") && password.equals("guest2") ||login.equals("guest") && password.equals("guest") || login.equals("DP") && password.equals("1996")) {
+			if (Database.isValidUser(login, password) || login.equals("guest") && password.equals("guest")
+					|| login.equals("DP") && password.equals("1996")) {
 				String msg = "ok login\n";
 				try {
 					outputStream.write(msg.getBytes());

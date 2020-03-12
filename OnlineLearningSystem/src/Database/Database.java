@@ -3,8 +3,7 @@ import java.sql.*;
 import java.util.*;
 import javax.sql.DataSource;
 import org.postgresql.ds.PGSimpleDataSource;
-public class datebase {
-	
+public class Database {
 
 	
 	     private static String url = "jdbc:postgresql://mod-msc-sw1.cs.bham.ac.uk/philadelphia";
