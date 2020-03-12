@@ -7,7 +7,7 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 
 public class LoginWindow extends JFrame {
-	private final ChatClient client;
+	private final Client client;
 	JTextField loginField = new JTextField();
 	JTextField passwordField = new JPasswordField();
 	JButton loginButton = new JButton("Login");
@@ -15,7 +15,7 @@ public class LoginWindow extends JFrame {
 	public LoginWindow() {
 		super("Login");
 
-		this.client = new ChatClient("localhost", 8818);
+		this.client = new Client("localhost", 8818);
 		client.connect();
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

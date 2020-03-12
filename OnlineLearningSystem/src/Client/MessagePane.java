@@ -10,14 +10,14 @@ import java.util.Date;
 
 public class MessagePane extends JPanel implements MessageListener {
 
-	private final ChatClient client;
+	private final Client client;
 	private final String login;
 
 	private DefaultListModel<String> listModel = new DefaultListModel<>();
 	private JList<String> messageList = new JList<>(listModel);
 	private JTextField inputField = new JTextField();
 
-	public MessagePane(ChatClient client, String login) {
+	public MessagePane(Client client, String login) {
 		this.client = client;
 		this.login = login;
 

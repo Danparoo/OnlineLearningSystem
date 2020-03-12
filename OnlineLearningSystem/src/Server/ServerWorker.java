@@ -103,7 +103,7 @@ public class ServerWorker extends Thread {
 
 			// A method needed
 			// if (database.isUserExisted()) {
-			if (login == "existed") {
+			if (login .equals ("existed")) {
 				String msg = "The username is already existed\n";
 				System.out.println("register failed because the username is already existed");
 				try {
@@ -112,7 +112,7 @@ public class ServerWorker extends Thread {
 					e.printStackTrace();
 				}
 
-			} else if (password != password2) {
+			} else if (!password.equals(password2) ) {
 				String msg = "The 2 passwords entered is different\n";
 				System.out.println("register failed because the 2 passwords entered is different\n");
 				try {
@@ -201,7 +201,7 @@ public class ServerWorker extends Thread {
 			String password = tokens[2];
 
 			// if (database.isValidUser(username , password)){
-			if (login.equals("guest") && password.equals("guest") || login.equals("DP") && password.equals("1996")) {
+			if (login.equals("guest2") && password.equals("guest2") ||login.equals("guest") && password.equals("guest") || login.equals("DP") && password.equals("1996")) {
 				String msg = "ok login\n";
 				try {
 					outputStream.write(msg.getBytes());
