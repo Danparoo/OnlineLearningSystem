@@ -16,6 +16,13 @@ public class Question implements Serializable {
         this.d = d;
         this.correctans = correctans;
     }
+    public String getQuestioncontent() {
+        return questioncontent;
+    }
+    public void setQuestioncontent(String questioncontent) {
+        this.questioncontent = questioncontent;
+    }
+    
     public int getQuestionid() {
         return questionid;
     }
