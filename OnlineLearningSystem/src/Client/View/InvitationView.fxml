@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+
+<AnchorPane prefHeight="400.0" prefWidth="300.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8">
+   <children>
+      <Button layoutX="24.0" layoutY="21.0" mnemonicParsing="false" text="Cancel" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="5.0" />
+      <Button layoutX="215.0" layoutY="21.0" mnemonicParsing="false" text="OK" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0" />
+      <Label layoutX="122.0" layoutY="7.0" text="Friends">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Label>
+      <CheckBox layoutX="26.0" layoutY="187.0" mnemonicParsing="false" text="Friend 1" />
+      <CheckBox layoutX="26.0" layoutY="221.0" mnemonicParsing="false" text="Friend 2" />
+      <CheckBox layoutX="26.0" layoutY="257.0" mnemonicParsing="false" text="Friend 3" />
+      <CheckBox layoutX="26.0" layoutY="294.0" mnemonicParsing="false" text="Friend 4" />
+      <CheckBox layoutX="27.0" layoutY="332.0" mnemonicParsing="false" text="Friend 5" />
+      <TextArea layoutX="29.0" layoutY="92.0" prefHeight="49.0" prefWidth="243.0" />
+      <TextField layoutX="85.0" layoutY="52.0" />
+      <Label layoutX="10.0" layoutY="57.0" text="GroupName:" />
+      <Label layoutX="15.0" layoutY="157.0" text="Select your friends below:" />
+   </children>
+</AnchorPane>

@@ -29,12 +29,6 @@ public class Question implements Serializable {
     public void setQuestionid(int questionid) {
         this.questionid = questionid;
     }
-    public String getQuestioncontent() {
-        return questioncontent;
-    }
-    public void setQuestioncontent(String questioncontent) {
-        this.questioncontent = questioncontent;
-    }
     public String getA() {
         return a;
     }
