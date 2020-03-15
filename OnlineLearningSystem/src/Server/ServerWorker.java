@@ -81,22 +81,39 @@ public class ServerWorker extends Thread {
 	// format: invite #topic <user1> <user2>
 	private void handleInvite(String[] tokens) {
 		// TODO Auto-generated method stub
-
 		if (tokens.length > 3 && tokens[1].charAt(0) == '#') {
 
 			String topicName = tokens[1];
 			String[] selfJoinCmd = { "join", topicName };
 			handleJoin(selfJoinCmd);
+			List<ServerWorker> workerList = server.getWorkerList();
 			for (int i = 2; i < tokens.length; i++) {
-				List<ServerWorker> workerList = server.getWorkerList();
 				for (ServerWorker worker : workerList) {
-					if (tokens[i].equalsIgnoreCase(worker.getLogin())) {
+					if (tokens[i].equals(worker.getLogin())) {
 						String[] joinCmd = { "join", topicName };
 						worker.handleJoin(joinCmd);
 					}
 				}
 			}
+
+//			// send this group chat information to  all related online logins
+//			for (ServerWorker worker : workerList) {
+//				if (worker.isMemberOfTopic(topicName)) {
+//					if (worker.getLogin() != null) {
+//						String msg2 = "online " + topicName + "\n";
+//						worker.send(msg2);
+//					}
+//				}
+//			}
+
+			String msg = "ok invited\n";
+			try {
+				outputStream.write(msg.getBytes());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
+
 	}
 
 	private void handleRegister(String[] tokens) {
@@ -153,6 +170,8 @@ public class ServerWorker extends Thread {
 		if (tokens.length > 1 && tokens[1].charAt(0) == '#') {
 			String topic = tokens[1];
 			topicSet.add(topic);
+			String msg2 = "online " + topic + "\n";
+			send(msg2);
 			System.out.println(login + " join " + topic);
 		}
 	}
@@ -170,7 +189,7 @@ public class ServerWorker extends Thread {
 			if (isTopic) {
 				if (worker.isMemberOfTopic(sendTo) && this.isMemberOfTopic(sendTo)) {
 					long msgTimeStamp = System.currentTimeMillis();
-					String outMsg = "msg " + sendTo + ":" + login + msgTimeStamp + ": " + body + "\n";
+					String outMsg = "msg " + sendTo + " " + msgTimeStamp + " " + login + ":" + body + "\n";
 					worker.send(outMsg);
 				}
 			} else if (sendTo.equalsIgnoreCase(worker.getLogin())) {
@@ -193,6 +212,17 @@ public class ServerWorker extends Thread {
 			}
 		}
 		clientSocket.close();
+
+		if (!topicSet.isEmpty()) {
+			for (String topic : topicSet) {
+				String topicOfflineMsg = "offline " + topic + "\n";
+				//simply send topicOfflineMsg to every user, which need some moderation
+				for (ServerWorker worker : workerList) {
+					worker.send(topicOfflineMsg);
+				}
+			}
+		}
+		
 	}
 
 	public String getLogin() {

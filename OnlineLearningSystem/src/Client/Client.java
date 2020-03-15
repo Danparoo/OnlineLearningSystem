@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Client {
 	private final String serverName;
@@ -13,6 +14,7 @@ public class Client {
 	private OutputStream serverOut;
 	private InputStream serverIn;
 	private BufferedReader bufferedIn;
+	private String login;
 
 	private ArrayList<UserStatusListener> userStatusListeners = new ArrayList<>();
 	private ArrayList<MessageListener> messageListeners = new ArrayList<>();
@@ -41,24 +43,38 @@ public class Client {
 
 		if ("ok login".equalsIgnoreCase(response)) {
 			startMessageReader();
+			this.login = login;
+
 			return true;
 		} else {
 			return false;
 		}
 	}
 
-	public boolean register(String login, String password, String password2) throws IOException {
+	public String register(String login, String password, String password2) throws IOException {
 		String cmd = "register " + login + " " + password + " " + password2 + "\n";
 		serverOut.write(cmd.getBytes());
 		String response = bufferedIn.readLine();
 		System.out.println("Response Line: " + response);
+		return response;
+	}
 
-		if ("ok register\n".equalsIgnoreCase(response)) {
+	// format: invite #topic <user1> <user2>
+	public boolean invite(String inviteCmd) throws IOException {
+		String[] inviteTokens = StringUtils.split(inviteCmd);
+		if (inviteTokens[1].charAt(0) != '#') {
+			return false;
+		}
+		// if lose "\n",server will be always waiting
+		serverOut.write((inviteCmd + "\n").getBytes());
+		String response = bufferedIn.readLine();
+		System.out.println("Response Line: " + response);
+
+		if ("ok invited".equalsIgnoreCase(response)) {
 			return true;
 		} else {
 			return false;
 		}
-
 	}
 
 	private void startMessageReader() {
@@ -104,7 +120,6 @@ public class Client {
 		String msgTimeStamp = tokensMsg[2];
 		String msgBody = tokensMsg[3];
 
-
 		for (MessageListener listener : messageListeners) {
 			listener.onMessage(login, msgBody, msgTimeStamp);
 		}
@@ -119,11 +134,10 @@ public class Client {
 
 	private void handleOnline(String[] tokens) {
 		String login = tokens[1];
-		try 
-		{ 
-		Thread.currentThread().sleep(1000);//毫秒 
-		} 
-		catch(Exception e){}
+		try {
+			Thread.currentThread().sleep(1000);// 毫秒
+		} catch (Exception e) {
+		}
 		for (UserStatusListener listener : userStatusListeners) {
 			listener.online(login);
 		}
@@ -153,6 +167,10 @@ public class Client {
 
 	public void addMessageListener(MessageListener listener) {
 		messageListeners.add(listener);
+	}
+
+	public String getLogin() {
+		return login;
 	}
 
 	public void removeaMessageListener(MessageListener listener) {

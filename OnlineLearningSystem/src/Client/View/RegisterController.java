@@ -8,10 +8,15 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 public class RegisterController extends AnchorPane {
@@ -41,14 +46,16 @@ public class RegisterController extends AnchorPane {
 		String password2 = passwordField2.getText();
 
 		try {
-			if (client.register(login, password1, password2)) {
-
-
-				this.stage.hide();
+			String respense = client.register(login, password1, password2);
+			if ("ok register".equalsIgnoreCase(respense)) {
+				this.stage.close();
 
 			} else {
-
-				// show error
+				Alert alert = new Alert(AlertType.ERROR);
+				alert.setTitle("Error");
+				alert.setHeaderText(respense);
+				// alert.setContentText(message);
+				alert.showAndWait();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

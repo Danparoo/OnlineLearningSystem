@@ -8,6 +8,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
@@ -34,7 +36,8 @@ public class Main extends Application {
 		this.stage = stage;
 		
 		client = new Client("localhost", 8818);
-		client.connect();
+		boolean isConnected=client.connect();
+		
 		
 		controller = new LoginController(stage, client);
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("LoginView.fxml"));
@@ -49,6 +52,15 @@ public class Main extends Application {
 		stage.setOnCloseRequest(ActionEvent -> System.exit(1));
 		
 		stage.show();
+		if(!isConnected) {
+			Alert alert = new Alert(AlertType.ERROR);
+			alert.setTitle("Error");
+			alert.setHeaderText("Sorry, the server can not be found. Please try later.");
+			// alert.setContentText(message);
+
+			alert.showAndWait();
+			stage.close();
+		}
 		
 		
 	}
