@@ -2,12 +2,14 @@ package Client.View;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Optional;
 
 import Client.Client;
 import Client.MessageListener;
 import Client.UserStatusListener;
+import Database.Messages;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -60,8 +62,22 @@ public class MainViewController extends AnchorPane implements UserStatusListener
 
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				// Your action here
 				messageList.getItems().clear();
+//				try {
+//					ArrayList<Messages> history = client.getChatHistory(newValue);
+//					for (Messages msg : history) {
+//						String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+//								.format(new Date(msg.getSendtime().getTime()));
+//						messageStrList.add(msg.getFromuserid() + ": " + msg.getPostcontent() + " \n" + time);
+//						messageList.setItems(messageStrList);
+//
+//					}
+//				} catch (ClassNotFoundException e) {
+//					e.printStackTrace();
+//				} catch (IOException e) {
+//					e.printStackTrace();
+//				}
+
 				System.out.println("Selected user: " + newValue);
 			}
 		});

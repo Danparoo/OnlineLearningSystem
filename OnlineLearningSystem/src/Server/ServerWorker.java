@@ -3,9 +3,11 @@ package Server;
 import org.apache.commons.lang3.StringUtils;
 
 import Database.Database;
+import Database.Messages;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -16,6 +18,7 @@ public class ServerWorker extends Thread {
 	private final Server server;
 	private String login = null;
 	private OutputStream outputStream;
+	private ObjectOutputStream objectOutputStream;
 	private HashSet<String> topicSet = new HashSet<>();
 
 	public ServerWorker(Server server, Socket clientSocket) {
@@ -37,6 +40,7 @@ public class ServerWorker extends Thread {
 	private void handleClientSocket() throws IOException, InterruptedException {
 		InputStream inputStream = clientSocket.getInputStream();
 		this.outputStream = clientSocket.getOutputStream();
+		this.objectOutputStream = new ObjectOutputStream(clientSocket.getOutputStream());
 
 		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 		String line;
@@ -51,7 +55,6 @@ public class ServerWorker extends Thread {
 					break;
 				} else if ("login".equalsIgnoreCase(cmd)) {
 					handleLogin(outputStream, tokens);
-
 				} else if ("register".equalsIgnoreCase(cmd)) {
 					handleRegister(tokens);
 
@@ -59,15 +62,14 @@ public class ServerWorker extends Thread {
 					String[] tokensMsg = StringUtils.split(line, null, 3);
 					handleMessege(tokensMsg);
 
-				} else if ("join".equalsIgnoreCase(cmd)) {
-					handleJoin(tokens);
-
 				} else if ("invite".equalsIgnoreCase(cmd)) {
 					handleInvite(tokens);
-
+				} else if ("join".equalsIgnoreCase(cmd)) {
+					handleJoin(tokens);
 				} else if ("leave".equalsIgnoreCase(cmd)) {
 					handleLeave(tokens);
-
+				} else if ("history".equalsIgnoreCase(cmd)) {
+					handleHistory(tokens);
 				} else {
 					String msg = "unknow " + cmd + "\n";
 					outputStream.write(msg.getBytes());
@@ -194,6 +196,7 @@ public class ServerWorker extends Thread {
 				}
 			} else if (sendTo.equalsIgnoreCase(worker.getLogin())) {
 				long msgTimeStamp = System.currentTimeMillis();
+				// Database.insertMessage (login, sendTo,body,msgTimeStamp);
 				String outMsg = "msg " + login + " " + msgTimeStamp + " " + body + "\n";
 				worker.send(outMsg);
 			}
@@ -216,13 +219,13 @@ public class ServerWorker extends Thread {
 		if (!topicSet.isEmpty()) {
 			for (String topic : topicSet) {
 				String topicOfflineMsg = "offline " + topic + "\n";
-				//simply send topicOfflineMsg to every user, which need some moderation
+				// simply send topicOfflineMsg to every user, which need some moderation
 				for (ServerWorker worker : workerList) {
 					worker.send(topicOfflineMsg);
 				}
 			}
 		}
-		
+
 	}
 
 	public String getLogin() {
@@ -274,6 +277,17 @@ public class ServerWorker extends Thread {
 				}
 			}
 		}
+	}
+
+	// format: "history" <user1> <user2>
+	private void handleHistory(String[] tokens) throws IOException {
+		String fromUser=tokens[1];
+		String toUser=tokens[2];
+		
+		ArrayList<Messages> history = new ArrayList<Messages>();
+		// Databse.retrieveMessages (fromUser, toUser);
+		
+		objectOutputStream.writeObject(history);
 	}
 
 	private void send(String msg) {

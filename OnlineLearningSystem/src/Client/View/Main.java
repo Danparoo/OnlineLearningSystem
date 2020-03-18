@@ -23,6 +23,7 @@ public class Main extends Application {
 	private Scene scene;
 	private Client client;
 	private LoginController controller;
+
 	/**
 	 * @return the client
 	 */
@@ -30,29 +31,27 @@ public class Main extends Application {
 		return client;
 	}
 
-
-	@Override 
-	public void start(Stage stage) throws IOException{
+	@Override
+	public void start(Stage stage) throws IOException {
 		this.stage = stage;
-		
+
 		client = new Client("localhost", 8818);
-		boolean isConnected=client.connect();
-		
-		
+		boolean isConnected = client.connect();
+
 		controller = new LoginController(stage, client);
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("LoginView.fxml"));
 		loader.setRoot(controller);
 		loader.setController(controller);
 		Parent root = loader.load();
-		
+
 		scene = new Scene(root);
 		stage.setTitle("Login");
 		stage.setScene(scene);
 		stage.setResizable(false);
 		stage.setOnCloseRequest(ActionEvent -> System.exit(1));
-		
+
 		stage.show();
-		if(!isConnected) {
+		if (!isConnected) {
 			Alert alert = new Alert(AlertType.ERROR);
 			alert.setTitle("Error");
 			alert.setHeaderText("Sorry, the server can not be found. Please try later.");
@@ -61,8 +60,7 @@ public class Main extends Application {
 			alert.showAndWait();
 			stage.close();
 		}
-		
-		
+
 	}
 
 	public static void main(String[] args) {

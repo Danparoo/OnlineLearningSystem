@@ -2,6 +2,8 @@ package Client;
 
 import org.apache.commons.lang3.StringUtils;
 
+import Database.Messages;
+
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -15,6 +17,7 @@ public class Client {
 	private InputStream serverIn;
 	private BufferedReader bufferedIn;
 	private String login;
+	private ObjectInputStream objectServerIn;
 
 	private ArrayList<UserStatusListener> userStatusListeners = new ArrayList<>();
 	private ArrayList<MessageListener> messageListeners = new ArrayList<>();
@@ -115,6 +118,24 @@ public class Client {
 
 	}
 
+	// format: "history" <user1> <user2>
+	public ArrayList<Messages> getChatHistory(String sendTo) throws IOException, ClassNotFoundException {
+		String historyCmd = "history " + login +" "+ sendTo + "\n";
+		serverOut.write((historyCmd).getBytes());
+//		String response = bufferedIn.readLine();
+//		System.out.println("Response Line: " + response);
+		
+		ArrayList<Messages> history = new ArrayList<Messages>();
+		Object obj= objectServerIn.readObject();
+		
+		if (obj != null) {
+			history = (ArrayList<Messages>)obj;
+			System.out.println("history Got. ");
+		}
+
+		return history;
+	}
+
 	private void handleMessage(String[] tokensMsg) {
 		String login = tokensMsg[1];
 		String msgTimeStamp = tokensMsg[2];
@@ -150,6 +171,7 @@ public class Client {
 			this.serverOut = socket.getOutputStream();
 			this.serverIn = socket.getInputStream();
 			this.bufferedIn = new BufferedReader(new InputStreamReader(serverIn));
+			this.objectServerIn = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
