@@ -73,6 +73,7 @@ public class examDatabase {
             statement.setString(5, question.getC());
             statement.setString(6, question.getD());
             statement.setString(7, question.getCorrectans());
+            statement.setString(8, question.getTopicname());
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -92,9 +93,36 @@ public class examDatabase {
             String optionC= rs.getString("c");
             String optionD= rs.getString("d");
             String answer= rs.getString("correctans");
-            Question question1 = new Question(questionid, questioncontent, optionA, optionB, optionC, optionD, answer);
+            String topicname= rs.getString("topicname");
+            Question question1 = new Question(questionid, questioncontent, optionA, optionB, optionC, optionD, answer, topicname);
 
             return question1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
+    public static synchronized ArrayList<Question> getQuestions (String topicName) {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT * FROM question WHERE topicname = ?"))
+        {
+            statement.setString(1, topicName);
+            ResultSet rs = statement.executeQuery();
+            ArrayList<Question> questions = new ArrayList<>();
+
+            while(rs.next()) {
+                int questionid= rs.getInt("questionid");
+                String questioncontent= rs.getString("questioncontent");
+                String optionA= rs.getString("a");
+                String optionB= rs.getString("b");
+                String optionC= rs.getString("c");
+                String optionD= rs.getString("d");
+                String answer= rs.getString("correctans");
+                String topicname= rs.getString("topicname");
+                questions.add(new Question(questionid, questioncontent, optionA, optionB, optionC, optionD, answer, topicname));
+            }
+            return questions;
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
