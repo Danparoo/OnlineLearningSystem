@@ -15,7 +15,7 @@ public class examDatabase {
     public static void makeConnection(){
         try {
             connection = DriverManager.getConnection(url, username, password);
-            System.out.println("makeConnection Success");
+           
         } catch (SQLException e){
             e.printStackTrace();
         }
@@ -215,7 +215,15 @@ public class examDatabase {
     }
 
     public static void main(String[] args) {
-      makeConnection();
+       makeConnection();
+      //  System.out.println(getOptionA (2));
+      //  System.out.println(getOptionB (3));
+       // System.out.println(getOptionC (4));
+      //  System.out.println(getOptionD (5));
+       // ArrayList<Question> questions = getQuestions ("arithmetic");
+      //  for(int i = 0; i<questions.size();i++)
+      //  System.out.println(questions.get(i).getQuestioncontent() + "\n");
+
       //  System.out.println(isAnswerRight(2,"d"));
        // System.out.println(countQuestion());
        // Question question1=new Question(5, "five plus five equals?", "one", "ten", "eleven", "seven", "b");
