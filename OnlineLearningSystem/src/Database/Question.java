@@ -1,12 +1,12 @@
 package Database;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
+
 
 public class Question implements Serializable {
     private int questionid;
-    private String questioncontent, a, b, c, d, correctans;
-    public Question(int questionid, String questioncontent, String a, String b, String c, String d, String correctans) {
+    private String questioncontent, a, b, c, d, correctans, topicname;
+    public Question(int questionid, String questioncontent, String a, String b, String c, String d, String correctans, String topicname) {
         super();
         this.questionid = questionid;
         this.questioncontent = questioncontent;
@@ -15,19 +15,20 @@ public class Question implements Serializable {
         this.c = c;
         this.d = d;
         this.correctans = correctans;
+        this.topicname = topicname;
+    }
+
+    public int getQuestionid() {
+        return questionid;
+    }
+    public void setQuestionid(int questionid) {
+        this.questionid = questionid;
     }
     public String getQuestioncontent() {
         return questioncontent;
     }
     public void setQuestioncontent(String questioncontent) {
         this.questioncontent = questioncontent;
-    }
-    
-    public int getQuestionid() {
-        return questionid;
-    }
-    public void setQuestionid(int questionid) {
-        this.questionid = questionid;
     }
     public String getA() {
         return a;
@@ -59,5 +60,13 @@ public class Question implements Serializable {
     public void setCorrectans(String correctans) {
         this.correctans = correctans;
     }
+    public String getTopicname() {
+        return topicname;
+    }
+    public void setTopicname(String topicname) {
+        this.topicname = topicname;
+    }
+
+
 
 }
