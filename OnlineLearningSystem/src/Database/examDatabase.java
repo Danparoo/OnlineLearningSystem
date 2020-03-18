@@ -61,7 +61,47 @@ public class examDatabase {
         }
         return rowCount;
     }
-public static synchronized String getCertainQuestion (int questionid) {
+    
+        public static synchronized void addNewQuestion(Question question){
+        try (PreparedStatement statement = connection.prepareStatement(
+                "INSERT INTO question (questionid,questioncontent,a,b,c,d,correctans) VALUES (?, ?, ?, ?, ?, ?, ?)"))
+        {
+            statement.setInt(1,  question.getQuestionid());
+            statement.setString(2, question.getQuestioncontent());
+            statement.setString(3, question.getA());
+            statement.setString(4, question.getB());
+            statement.setString(5, question.getC());
+            statement.setString(6, question.getD());
+            statement.setString(7, question.getCorrectans());
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+     public static synchronized Question getQuestion (int questionid) {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT * FROM question WHERE questionid = ?"))
+        {
+            statement.setInt(1, questionid);
+            ResultSet rs = statement.executeQuery();
+            rs.next();
+            String questioncontent= rs.getString("questioncontent");
+            String optionA= rs.getString("a");
+            String optionB= rs.getString("b");
+            String optionC= rs.getString("c");
+            String optionD= rs.getString("d");
+            String answer= rs.getString("correctans");
+            Question question1 = new Question(questionid, questioncontent, optionA, optionB, optionC, optionD, answer);
+
+            return question1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
+    public static synchronized String getQuestionContent (int questionid) {
         try (PreparedStatement statement = connection.prepareStatement(
                 "SELECT * FROM question WHERE questionid = ?"))
         {
@@ -143,22 +183,6 @@ public static synchronized String getCertainQuestion (int questionid) {
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
-        }
-    }
-    public static synchronized void addNewQuestion(Question question){
-        try (PreparedStatement statement = connection.prepareStatement(
-                "INSERT INTO question (questionid,questioncontent,a,b,c,d,correctans) VALUES (?, ?, ?, ?, ?, ?, ?)"))
-        {
-            statement.setInt(1,  question.getQuestionid());
-            statement.setString(2, question.getQuestioncontent());
-            statement.setString(3, question.getA());
-            statement.setString(4, question.getB());
-            statement.setString(5, question.getC());
-            statement.setString(6, question.getD());
-            statement.setString(7, question.getCorrectans());
-            statement.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 
