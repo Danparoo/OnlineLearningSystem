@@ -64,7 +64,7 @@ public class examDatabase {
     
         public static synchronized void addNewQuestion(Question question){
         try (PreparedStatement statement = connection.prepareStatement(
-                "INSERT INTO question (questionid,questioncontent,a,b,c,d,correctans) VALUES (?, ?, ?, ?, ?, ?, ?)"))
+                "INSERT INTO question (questionid,questioncontent,a,b,c,d,correctans,topicname) VALUES (?,?, ?, ?, ?, ?, ?, ?)"))
         {
             statement.setInt(1,  question.getQuestionid());
             statement.setString(2, question.getQuestioncontent());
