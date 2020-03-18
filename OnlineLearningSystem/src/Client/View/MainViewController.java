@@ -10,6 +10,7 @@ import Client.Client;
 import Client.MessageListener;
 import Client.UserStatusListener;
 import Database.Messages;
+import Database.Question;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -27,6 +28,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class MainViewController extends AnchorPane implements UserStatusListener, MessageListener {
@@ -45,9 +47,17 @@ public class MainViewController extends AnchorPane implements UserStatusListener
 	private ObservableList<String> messageStrList = FXCollections.observableArrayList();
 	@FXML
 	private ListView<String> messageList = new ListView<>(userStrList);
+	
+	
+	private ObservableList<String> testStrList = FXCollections.observableArrayList();
+	@FXML
+	private ListView<String> testList = new ListView<>(userStrList);
 
 	@FXML
 	private Button inviteButton;
+	
+	@FXML
+	private Text questionContent;
 
 	public MainViewController(Stage stage, Client client) throws IOException {
 		this.client = client;
@@ -81,6 +91,34 @@ public class MainViewController extends AnchorPane implements UserStatusListener
 				System.out.println("Selected user: " + newValue);
 			}
 		});
+		
+		
+		testStrList.add("Arithmetic");
+		testStrList.add("Geography");
+		testList.setItems(testStrList);
+		
+//		testList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+//
+//			@Override
+//			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+//				try {
+//					ArrayList<Question> questions = client.getQuestions(newValue);
+//					if(questions!=null) {
+//						questionContent.setText(questions.get(0).getQuestioncontent());
+//					}else {
+//						questionContent.setText("No question got");
+//					}
+//					
+//				} catch (ClassNotFoundException e) {
+//					e.printStackTrace();
+//				} catch (IOException e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		});
+		
+		
+		
 	}
 
 	@FXML

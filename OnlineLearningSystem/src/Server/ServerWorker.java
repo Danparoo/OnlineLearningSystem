@@ -4,6 +4,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import Database.Database;
 import Database.Messages;
+import Database.Question;
+import Database.examDatabase;
 
 import java.io.*;
 import java.net.Socket;
@@ -70,6 +72,9 @@ public class ServerWorker extends Thread {
 					handleLeave(tokens);
 				} else if ("history".equalsIgnoreCase(cmd)) {
 					handleHistory(tokens);
+				} else if ("getQuestions".equalsIgnoreCase(cmd)) {
+					handleGetQuestions(tokens);
+
 				} else {
 					String msg = "unknow " + cmd + "\n";
 					outputStream.write(msg.getBytes());
@@ -281,13 +286,25 @@ public class ServerWorker extends Thread {
 
 	// format: "history" <user1> <user2>
 	private void handleHistory(String[] tokens) throws IOException {
-		String fromUser=tokens[1];
-		String toUser=tokens[2];
-		
+		String fromUser = tokens[1];
+		String toUser = tokens[2];
+
 		ArrayList<Messages> history = new ArrayList<Messages>();
 		// Databse.retrieveMessages (fromUser, toUser);
-		
+
 		objectOutputStream.writeObject(history);
+	}
+
+	private void handleGetQuestions(String[] tokens) throws IOException {
+		String topicName = tokens[1];
+		
+		examDatabase.makeConnection();
+		ArrayList<Question> questions = examDatabase.getQuestions(topicName.toLowerCase());
+		objectOutputStream.writeObject(questions);
+
+		System.out.println(topicName + " question sended");
+		System.out.println(questions.get(0).getQuestioncontent() + " " + questions.get(0).getCorrectans());
+
 	}
 
 	private void send(String msg) {

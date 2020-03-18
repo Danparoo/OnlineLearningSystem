@@ -37,6 +37,7 @@ Commands:
     
     // get chat history, it will return an ArrayList<Messages> which contain all messages between two users
     history <user1> <user2>
+   
     
     
     

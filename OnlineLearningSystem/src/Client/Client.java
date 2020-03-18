@@ -3,6 +3,7 @@ package Client;
 import org.apache.commons.lang3.StringUtils;
 
 import Database.Messages;
+import Database.Question;
 
 import java.io.*;
 import java.net.Socket;
@@ -130,10 +131,29 @@ public class Client {
 		
 		if (obj != null) {
 			history = (ArrayList<Messages>)obj;
-			System.out.println("history Got. ");
+			System.out.println("history got. ");
 		}
 
 		return history;
+	}
+
+	public ArrayList<Question> getQuestions(String TopicName) throws IOException, ClassNotFoundException {
+		String getQuestionCmd = "getQuestions " + TopicName + "\n";
+		serverOut.write((getQuestionCmd).getBytes());
+//		String response = bufferedIn.readLine();
+//		System.out.println("Response Line: " + response);
+		
+		ArrayList<Question> questions = new ArrayList<Question>();
+		Object obj= objectServerIn.readObject();
+		
+		System.out.println("obj received");
+		
+		if (obj != null) {
+			questions = (ArrayList<Question>)obj;
+			System.out.println("questions got. ");
+		}
+
+		return questions;
 	}
 
 	private void handleMessage(String[] tokensMsg) {
@@ -171,7 +191,7 @@ public class Client {
 			this.serverOut = socket.getOutputStream();
 			this.serverIn = socket.getInputStream();
 			this.bufferedIn = new BufferedReader(new InputStreamReader(serverIn));
-			this.objectServerIn = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
+			this.objectServerIn = new ObjectInputStream(serverIn);
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -235,4 +255,5 @@ public class Client {
 			// client.logoff();
 		}
 	}
+
 }
