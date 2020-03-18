@@ -121,19 +121,19 @@ public class Database {
 	      * @param message Message object containing fromuserid, touserid, postcontent, and sendtime.
 	      */
 	     //���ϵͳ���ṩsendtime���ݿ�Ҳ�����Զ�����
-	     public static synchronized void insertMessage(Messages message) {
-	     	try (PreparedStatement statement = connection.prepareStatement(
-	     			"INSERT INTO messages (fromuserid,touserid,postcontent,sendtime) VALUES (?, ?, ?, ?)"))
-	     	{
-	     		statement.setInt(1,  message.getFromuserid());
-	     		statement.setInt(2, message.getTouserid());
-	     		statement.setString(3, message.getPostcontent());
-	     		statement.setTimestamp(4, message.getSendtime());
-	     		statement.executeUpdate();
-	     	} catch (SQLException e) {
-	     		e.printStackTrace();
-	     	}
-	     }
+	      public static synchronized void insertMessage(Messages message) {
+		     	try (PreparedStatement statement = connection.prepareStatement(
+		     			"INSERT INTO messages (fromuser,touser,postcontent,sendtime) VALUES (?, ?, ?, ?)"))
+		     	{
+		     		statement.setString(1,  message.getFromuser());
+		     		statement.setString(2, message.getTouser());
+		     		statement.setString(3, message.getPostcontent());
+		     		statement.setTimestamp(4, message.getSendtime());
+		     		statement.executeUpdate();
+		     	} catch (SQLException e) {
+		     		e.printStackTrace();
+		     	}
+		     }
 	     
 	     
 	     /**
@@ -141,17 +141,18 @@ public class Database {
 	      * @param chatname Name of the chat being queried.
 	      * @return ArrayList of Message objects for the specified chat.
 	      */	     
-	     public static synchronized ArrayList<Messages> retrieveMessages1 (int fromuserid) {
+	     public static synchronized ArrayList<Messages> retrieveMessages (String fromuser,String touser) {
 		     	try (PreparedStatement statement = connection.prepareStatement(
-		     			"SELECT * FROM messages WHERE fromuserid = ?"))
+		     			"SELECT * FROM messages WHERE fromuser = ?AND touser = ?ORDER BY sendtime DESC"))
 		     	{
-		     		statement.setInt(1, fromuserid);
+		     		statement.setString(1, fromuser);
+		     		statement.setString(2, touser);
 		     		ResultSet rs = statement.executeQuery();
 		     		ArrayList<Messages> messages = new ArrayList<>();
 		     		
 		     		while(rs.next()) {
-		     			int fromUser= rs.getInt(fromuserid);
-		     			int toUser= rs.getInt(fromuserid);
+		     			String fromUser= rs.getString("fromuser");
+		     			String toUser= rs.getString("touser");
 		     			String msg = rs.getString("postcontent");
 		     			Timestamp time = rs.getTimestamp("sendtime");
 		     			messages.add(new Messages(fromUser,toUser, msg, time));

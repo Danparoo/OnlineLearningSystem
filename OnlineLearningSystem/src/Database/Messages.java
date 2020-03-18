@@ -4,15 +4,15 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 
 public class Messages implements Serializable {
-	private int messageid,fromuserid,touserid;
-	private String postcontent;
+	private int messageid;
+	private String postcontent,fromuser,touser;
 	private Timestamp sendtime;
 	private boolean status;
-	public Messages(int fromuserid, int touserid, String postcontent, Timestamp sendtime) {
+	public Messages(String fromuser, String touser, String postcontent, Timestamp sendtime) {
 		super();
 //		this.messageid = messageid;
-		this.fromuserid = fromuserid;
-		this.touserid = touserid;
+		this.fromuser = fromuser;
+		this.touser = touser;
 		this.postcontent = postcontent;
 		this.sendtime = sendtime;
 //		this.status = status;
@@ -24,17 +24,17 @@ public class Messages implements Serializable {
 	public void setMessageid(int messageid) {
 		this.messageid = messageid;
 	}
-	public int getFromuserid() {
-		return fromuserid;
+	public String getFromuser() {
+		return fromuser;
 	}
-	public void setFromuserid(int fromuserid) {
-		this.fromuserid = fromuserid;
+	public void setFromuser(String fromuser) {
+		this.fromuser = fromuser;
 	}
-	public int getTouserid() {
-		return touserid;
+	public String getTouser() {
+		return touser;
 	}
-	public void setTouserid(int touserid) {
-		this.touserid = touserid;
+	public void setTouser(String touser) {
+		this.touser = touser;
 	}
 	public String getPostcontent() {
 		return postcontent;
@@ -63,7 +63,7 @@ public class Messages implements Serializable {
 		if (getClass() != message.getClass())
 			return false;
 		Messages other = (Messages) message;
-		if (fromuserid != other.fromuserid)
+		if (fromuser != other.fromuser)
 			return false;
 		if (messageid != other.messageid)
 			return false;
@@ -79,7 +79,7 @@ public class Messages implements Serializable {
 			return false;
 		if (status != other.status)
 			return false;
-		if (touserid != other.touserid)
+		if (touser != other.touser)
 			return false;
 		return true;
 	}
@@ -87,8 +87,8 @@ public class Messages implements Serializable {
 	
 	@Override
 	public String toString() {
-		return "Messages [messageid=" + messageid + ", fromuserid=" + fromuserid + ", touserid=" + touserid
-				+ ", postcontent=" + postcontent + ", sendtime=" + sendtime + "]";
+		return "Messages [messageid=" + messageid + ", fromuser=" + fromuser + ", touser=" + touser
+				+ ", postcontent=" + postcontent + ", sendtime=" + sendtime + "]\n";
 	}
 	
 	
