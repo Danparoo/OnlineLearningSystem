@@ -310,9 +310,7 @@ public class ServerWorker extends Thread {
 		ArrayList<Question> questions = examDatabase.getQuestions(topicName.toLowerCase());
 		objectOutputStream.writeObject(("questions " + topicName));
 		objectOutputStream.writeObject(questions);
-
 		System.out.println(topicName + " questions sended");
-		System.out.println(questions.get(0).getQuestioncontent() + " " + questions.get(0).getCorrectans());
 
 	}
 

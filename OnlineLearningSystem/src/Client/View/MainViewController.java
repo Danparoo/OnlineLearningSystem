@@ -23,9 +23,13 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ListView;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Toggle;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
@@ -56,7 +60,21 @@ public class MainViewController extends AnchorPane implements UserStatusListener
 	private Button inviteButton;
 
 	@FXML
+	private Button nextQueButton;
+
+	ArrayList<Question> questions;
+	@FXML
 	private Text questionContent;
+	@FXML
+	private RadioButton AOption;
+	@FXML
+	private RadioButton BOption;
+	@FXML
+	private RadioButton COption;
+	@FXML
+	private RadioButton DOption;
+	private int currentQueIndex = 0;
+	private String[] answer;
 
 	public MainViewController(Stage stage, Client client) throws IOException {
 		this.client = client;
@@ -108,11 +126,33 @@ public class MainViewController extends AnchorPane implements UserStatusListener
 		testStrList.add("Geography");
 		testList.setItems(testStrList);
 
+		ToggleGroup Tgroup = new ToggleGroup();
+		AOption.setUserData("a");
+		AOption.setToggleGroup(Tgroup);
+		BOption.setUserData("b");
+		BOption.setToggleGroup(Tgroup);
+		COption.setUserData("c");
+		COption.setToggleGroup(Tgroup);
+		DOption.setUserData("d");
+		DOption.setToggleGroup(Tgroup);
+
 		testList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-
+//				try {
+//					Thread getQuestions = new Thread() {
+//						@Override
+//						public void run() {
+//							client.send("getQuestions " + newValue);
+//						}
+//					};
+//					getQuestions.start();
+//					getQuestions.join();
+//				} catch (InterruptedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
 				client.send("getQuestions " + newValue);
 				try {
 					Thread.currentThread().sleep(500);
@@ -120,16 +160,32 @@ public class MainViewController extends AnchorPane implements UserStatusListener
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				ArrayList<Question> questions = client.getQuestionMap().get(newValue);
+				questions = client.getQuestionMap().get(newValue);
 				if (questions != null) {
-					questionContent.setText(questions.get(0).getQuestioncontent());
+					currentQueIndex = 0;
+					Question q = questions.get(currentQueIndex);
+					answer = new String[questions.size()];
+					questionContent.setText(
+							q.getQuestioncontent() + "(" + (currentQueIndex + 1) + "/" + questions.size() + ")");
+					AOption.setText(q.getA());
+					BOption.setText(q.getB());
+					COption.setText(q.getC());
+					DOption.setText(q.getD());
 				} else {
 					questionContent.setText("No question got");
 				}
 
 			}
 		});
-
+		Tgroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
+			public void changed(ObservableValue<? extends Toggle> ov, Toggle old_toggle, Toggle new_toggle) {
+				if (Tgroup.getSelectedToggle() != null) {
+					String selectedOption = Tgroup.getSelectedToggle().getUserData().toString();
+					System.out.println(selectedOption);
+					answer[currentQueIndex] = selectedOption;
+				}
+			}
+		});
 	}
 
 	@FXML
@@ -173,6 +229,81 @@ public class MainViewController extends AnchorPane implements UserStatusListener
 		invitationStage.show();
 	}
 
+	@FXML
+	public void lastQue() {
+		if (questions != null && currentQueIndex > 0 && currentQueIndex < questions.size() - 1) {
+			currentQueIndex--;
+			setNewQuestion();
+		} else if (currentQueIndex == questions.size() - 1) {
+			nextQueButton.setText("Next");
+			currentQueIndex--;
+			setNewQuestion();
+		} else if (currentQueIndex == 0) {
+			Alert alert = new Alert(AlertType.ERROR);
+			alert.setTitle("Error");
+			alert.setHeaderText("It is the first question");
+			// alert.setContentText(message);
+			alert.showAndWait();
+		}
+	}
+
+	@FXML
+	public void nextQue() {
+		if (questions != null && currentQueIndex < questions.size() - 2) {
+			currentQueIndex++;
+			setNewQuestion();
+		} else if (currentQueIndex == questions.size() - 2) {
+			currentQueIndex++;
+			setNewQuestion();
+			nextQueButton.setText("Submit");
+			// handle submit
+		} else if (currentQueIndex == questions.size() - 1) {
+			int score = 0;
+			int i = 0;
+			for (Question q : questions) {
+				if (answer[i] != null && q.getCorrectans().equals(answer[i])) {
+					score++;
+				}
+				i++;
+			}
+
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setTitle("Result!");
+			alert.setHeaderText("You got " + score + "/" + answer.length + " marks!");
+			// alert.setContentText(message);
+			alert.showAndWait();
+			nextQueButton.setText("Next");
+		}
+
+	}
+
+	public void setNewQuestion() {
+		Question q = questions.get(currentQueIndex);
+		questionContent.setText(q.getQuestioncontent() + "(" + (currentQueIndex + 1) + "/" + questions.size() + ")");
+		AOption.setText(q.getA());
+		BOption.setText(q.getB());
+		COption.setText(q.getC());
+		DOption.setText(q.getD());
+
+		if (answer[currentQueIndex] != null) {
+			if (answer[currentQueIndex].equals("a")) {
+				AOption.setSelected(true);
+			} else if (answer[currentQueIndex].equals("b")) {
+				BOption.setSelected(true);
+			} else if (answer[currentQueIndex].equals("c")) {
+				COption.setSelected(true);
+			} else if (answer[currentQueIndex].equals("d")) {
+				DOption.setSelected(true);
+			}
+		} else {
+			AOption.setSelected(false);
+			BOption.setSelected(false);
+			COption.setSelected(false);
+			DOption.setSelected(false);
+
+		}
+	}
+
 	@Override
 	public void online(String login) {
 		userStrList.add(login);
@@ -191,12 +322,17 @@ public class MainViewController extends AnchorPane implements UserStatusListener
 	@Override
 	public void onMessage(String fromLogin, String msgBody, String msgTimeStamp) {
 		String login = userList.getSelectionModel().getSelectedItem();
-		if (login.equalsIgnoreCase(fromLogin)) {
+		if (login!=null&&login.equalsIgnoreCase(fromLogin)) {
 			String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(Long.parseLong(msgTimeStamp)));
 			messageStrList.add(fromLogin + ": " + msgBody + " \n" + time);
 			// messageStrList.add(nowtime);
 			messageList.setItems(messageStrList);
 		}
+//		 else if (userStrList.contains(fromLogin)) {
+//			int i = userStrList.indexOf(fromLogin);
+//			userStrList.set(i, fromLogin + " *");
+//			userList.setItems(userStrList);
+//		}
 	}
 
 	public static void main(String[] args) throws IOException {
