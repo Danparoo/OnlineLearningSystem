@@ -9,7 +9,10 @@ import Database.examDatabase;
 
 import java.io.*;
 import java.net.Socket;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -19,7 +22,8 @@ public class ServerWorker extends Thread {
 	private final Socket clientSocket;
 	private final Server server;
 	private String login = null;
-	private OutputStream outputStream;
+	// private OutputStream outputStream;
+	private ObjectInputStream objectInputStream;
 	private ObjectOutputStream objectOutputStream;
 	private HashSet<String> topicSet = new HashSet<>();
 
@@ -41,44 +45,53 @@ public class ServerWorker extends Thread {
 
 	private void handleClientSocket() throws IOException, InterruptedException {
 		InputStream inputStream = clientSocket.getInputStream();
-		this.outputStream = clientSocket.getOutputStream();
+		// this.outputStream = clientSocket.getOutputStream();
+		this.objectInputStream = new ObjectInputStream(clientSocket.getInputStream());
 		this.objectOutputStream = new ObjectOutputStream(clientSocket.getOutputStream());
 
-		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-		String line;
-		while ((line = reader.readLine()) != null) {
-			String[] tokens = StringUtils.split(line);
+		Object buf;
+		while (true) {
+			try {
+				buf = objectInputStream.readObject();
+				String line = (String) buf;
 
-			// deal with first command
-			if (tokens != null && tokens.length > 0) {
-				String cmd = tokens[0];
-				if ("logoff".equals(cmd) || "quit".equalsIgnoreCase(cmd)) {
-					handleLogoff();
-					break;
-				} else if ("login".equalsIgnoreCase(cmd)) {
-					handleLogin(outputStream, tokens);
-				} else if ("register".equalsIgnoreCase(cmd)) {
-					handleRegister(tokens);
+				String[] tokens = StringUtils.split(line);
 
-				} else if ("msg".equalsIgnoreCase(cmd)) {
-					String[] tokensMsg = StringUtils.split(line, null, 3);
-					handleMessege(tokensMsg);
+				// deal with first command
+				if (tokens != null && tokens.length > 0) {
+					String cmd = tokens[0];
+					if ("logoff".equals(cmd) || "quit".equalsIgnoreCase(cmd)) {
+						handleLogoff();
+						break;
+					} else if ("login".equalsIgnoreCase(cmd)) {
+						handleLogin(tokens);
+					} else if ("register".equalsIgnoreCase(cmd)) {
+						handleRegister(tokens);
 
-				} else if ("invite".equalsIgnoreCase(cmd)) {
-					handleInvite(tokens);
-				} else if ("join".equalsIgnoreCase(cmd)) {
-					handleJoin(tokens);
-				} else if ("leave".equalsIgnoreCase(cmd)) {
-					handleLeave(tokens);
-				} else if ("history".equalsIgnoreCase(cmd)) {
-					handleHistory(tokens);
-				} else if ("getQuestions".equalsIgnoreCase(cmd)) {
-					handleGetQuestions(tokens);
+					} else if ("msg".equalsIgnoreCase(cmd)) {
+						String[] tokensMsg = StringUtils.split(line, null, 3);
+						handleMessege(tokensMsg);
 
-				} else {
-					String msg = "unknow " + cmd + "\n";
-					outputStream.write(msg.getBytes());
+					} else if ("invite".equalsIgnoreCase(cmd)) {
+						handleInvite(tokens);
+					} else if ("join".equalsIgnoreCase(cmd)) {
+						handleJoin(tokens);
+					} else if ("leave".equalsIgnoreCase(cmd)) {
+						handleLeave(tokens);
+					} else if ("history".equalsIgnoreCase(cmd)) {
+						handleHistory(tokens);
+					} else if ("getQuestions".equalsIgnoreCase(cmd)) {
+						handleGetQuestions(tokens);
+
+					} else {
+						String msg = "unknow " + cmd + "\n";
+						objectOutputStream.writeObject(msg);
+					}
+
 				}
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 
@@ -102,20 +115,9 @@ public class ServerWorker extends Thread {
 					}
 				}
 			}
-
-//			// send this group chat information to  all related online logins
-//			for (ServerWorker worker : workerList) {
-//				if (worker.isMemberOfTopic(topicName)) {
-//					if (worker.getLogin() != null) {
-//						String msg2 = "online " + topicName + "\n";
-//						worker.send(msg2);
-//					}
-//				}
-//			}
-
 			String msg = "ok invited\n";
 			try {
-				outputStream.write(msg.getBytes());
+				objectOutputStream.writeObject(msg);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -134,7 +136,7 @@ public class ServerWorker extends Thread {
 				String msg = "The username is already existed\n";
 				System.out.println("register failed because the username is already existed");
 				try {
-					outputStream.write(msg.getBytes());
+					objectOutputStream.writeObject(msg);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -143,7 +145,7 @@ public class ServerWorker extends Thread {
 				String msg = "The 2 passwords entered is different\n";
 				System.out.println("register failed because the 2 passwords entered is different\n");
 				try {
-					outputStream.write(msg.getBytes());
+					objectOutputStream.writeObject(msg);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -152,7 +154,7 @@ public class ServerWorker extends Thread {
 				Database.addUser(login, password);
 				String msg = "ok register\n";
 				try {
-					outputStream.write(msg.getBytes());
+					objectOutputStream.writeObject(msg);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -196,13 +198,16 @@ public class ServerWorker extends Thread {
 			if (isTopic) {
 				if (worker.isMemberOfTopic(sendTo) && this.isMemberOfTopic(sendTo)) {
 					long msgTimeStamp = System.currentTimeMillis();
-					String outMsg = "msg " + sendTo + " " + msgTimeStamp + " " + login + ":" + body + "\n";
+					String outMsg = "msg " + sendTo + " " + msgTimeStamp + " " + login + ":" + body;
 					worker.send(outMsg);
 				}
 			} else if (sendTo.equalsIgnoreCase(worker.getLogin())) {
 				long msgTimeStamp = System.currentTimeMillis();
-				// Database.insertMessage (login, sendTo,body,msgTimeStamp);
-				String outMsg = "msg " + login + " " + msgTimeStamp + " " + body + "\n";
+
+				Timestamp t = new Timestamp(msgTimeStamp);
+				Messages msg = new Messages(login, sendTo, body, t);
+				Database.insertMessage(msg);
+				String outMsg = "msg " + login + " " + msgTimeStamp + " " + body;
 				worker.send(outMsg);
 			}
 		}
@@ -237,7 +242,7 @@ public class ServerWorker extends Thread {
 		return login;
 	}
 
-	private void handleLogin(OutputStream outputStream, String[] tokens) {
+	private void handleLogin(String[] tokens) {
 		if (tokens.length == 3) {
 			String login = tokens[1];
 			String password = tokens[2];
@@ -246,7 +251,7 @@ public class ServerWorker extends Thread {
 					|| login.equals("DP") && password.equals("1996")) {
 				String msg = "ok login\n";
 				try {
-					outputStream.write(msg.getBytes());
+					objectOutputStream.writeObject(msg);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -276,7 +281,7 @@ public class ServerWorker extends Thread {
 				String msg = "error login\n";
 				System.out.println("login failed for " + login);
 				try {
-					outputStream.write(msg.getBytes());
+					objectOutputStream.writeObject(msg);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -289,20 +294,24 @@ public class ServerWorker extends Thread {
 		String fromUser = tokens[1];
 		String toUser = tokens[2];
 
-		ArrayList<Messages> history = new ArrayList<Messages>();
-		// Databse.retrieveMessages (fromUser, toUser);
+		ArrayList<Messages> history = Database.retrieveMessages(fromUser, toUser);
+		ArrayList<Messages> history2 = Database.retrieveMessages(toUser, fromUser);
+		history.addAll(history2);
+		Collections.sort(history);
+		objectOutputStream.writeObject("history " + toUser);
 
 		objectOutputStream.writeObject(history);
 	}
 
 	private void handleGetQuestions(String[] tokens) throws IOException {
 		String topicName = tokens[1];
-		
+
 		examDatabase.makeConnection();
 		ArrayList<Question> questions = examDatabase.getQuestions(topicName.toLowerCase());
+		objectOutputStream.writeObject(("questions " + topicName));
 		objectOutputStream.writeObject(questions);
 
-		System.out.println(topicName + " question sended");
+		System.out.println(topicName + " questions sended");
 		System.out.println(questions.get(0).getQuestioncontent() + " " + questions.get(0).getCorrectans());
 
 	}
@@ -310,7 +319,7 @@ public class ServerWorker extends Thread {
 	private void send(String msg) {
 		try {
 			if (login != null) {
-				outputStream.write(msg.getBytes());
+				objectOutputStream.writeObject(msg);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

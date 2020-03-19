@@ -47,7 +47,7 @@ public class RegisterController extends AnchorPane {
 
 		try {
 			String respense = client.register(login, password1, password2);
-			if ("ok register".equalsIgnoreCase(respense)) {
+			if ("ok register\n".equalsIgnoreCase(respense)) {
 				this.stage.close();
 
 			} else {
@@ -58,6 +58,9 @@ public class RegisterController extends AnchorPane {
 				alert.showAndWait();
 			}
 		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

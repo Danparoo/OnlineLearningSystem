@@ -6,7 +6,6 @@ package Client.View;
 import java.io.IOException;
 
 import Client.Client;
-import Client.UserListPane;
 import javafx.application.Application;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -85,6 +84,9 @@ public class LoginController extends AnchorPane {
 		        alert.showAndWait();
 			}
 		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

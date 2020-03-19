@@ -47,15 +47,14 @@ public class MainViewController extends AnchorPane implements UserStatusListener
 	private ObservableList<String> messageStrList = FXCollections.observableArrayList();
 	@FXML
 	private ListView<String> messageList = new ListView<>(userStrList);
-	
-	
+
 	private ObservableList<String> testStrList = FXCollections.observableArrayList();
 	@FXML
 	private ListView<String> testList = new ListView<>(userStrList);
 
 	@FXML
 	private Button inviteButton;
-	
+
 	@FXML
 	private Text questionContent;
 
@@ -73,52 +72,64 @@ public class MainViewController extends AnchorPane implements UserStatusListener
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
 				messageList.getItems().clear();
-//				try {
-//					ArrayList<Messages> history = client.getChatHistory(newValue);
-//					for (Messages msg : history) {
-//						String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-//								.format(new Date(msg.getSendtime().getTime()));
-//						messageStrList.add(msg.getFromuserid() + ": " + msg.getPostcontent() + " \n" + time);
-//						messageList.setItems(messageStrList);
-//
-//					}
-//				} catch (ClassNotFoundException e) {
-//					e.printStackTrace();
-//				} catch (IOException e) {
-//					e.printStackTrace();
-//				}
+				try {
+					client.getChatHistory(newValue);
+					try {
+						Thread.currentThread().sleep(500);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					ArrayList<Messages> history = client.getMessageMap().get(newValue);
+					if (history != null) {
+						for (Messages msg : history) {
+							String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+									.format(new Date(msg.getSendtime().getTime()));
+							if (msg.getFromuser().equalsIgnoreCase(client.getLogin())) {
+								messageStrList.add("You: " + msg.getPostcontent() + " \n" + time);
+								messageList.setItems(messageStrList);
+							}
+							messageStrList.add(msg.getFromuser() + ": " + msg.getPostcontent() + " \n" + time);
+							messageList.setItems(messageStrList);
+
+						}
+					}
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 
 				System.out.println("Selected user: " + newValue);
 			}
 		});
-		
-		
+
 		testStrList.add("Arithmetic");
 		testStrList.add("Geography");
 		testList.setItems(testStrList);
-		
-//		testList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
-//
-//			@Override
-//			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-//				try {
-//					ArrayList<Question> questions = client.getQuestions(newValue);
-//					if(questions!=null) {
-//						questionContent.setText(questions.get(0).getQuestioncontent());
-//					}else {
-//						questionContent.setText("No question got");
-//					}
-//					
-//				} catch (ClassNotFoundException e) {
-//					e.printStackTrace();
-//				} catch (IOException e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		});
-		
-		
-		
+
+		testList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+
+				client.send("getQuestions " + newValue);
+				try {
+					Thread.currentThread().sleep(500);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				ArrayList<Question> questions = client.getQuestionMap().get(newValue);
+				if (questions != null) {
+					questionContent.setText(questions.get(0).getQuestioncontent());
+				} else {
+					questionContent.setText("No question got");
+				}
+
+			}
+		});
+
 	}
 
 	@FXML
@@ -128,7 +139,7 @@ public class MainViewController extends AnchorPane implements UserStatusListener
 		client.msg(login, text);
 		String nowtime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 		if (!(login.charAt(0) == '#')) {
-			messageStrList.add("You: " + text + " \n" + nowtime);
+			messageStrList.add("You: " + text + "\n" + nowtime);
 			// messageStrList.add(nowtime);
 			messageList.setItems(messageStrList);
 		}
@@ -185,9 +196,7 @@ public class MainViewController extends AnchorPane implements UserStatusListener
 			messageStrList.add(fromLogin + ": " + msgBody + " \n" + time);
 			// messageStrList.add(nowtime);
 			messageList.setItems(messageStrList);
-
 		}
-
 	}
 
 	public static void main(String[] args) throws IOException {

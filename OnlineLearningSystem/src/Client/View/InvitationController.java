@@ -99,7 +99,12 @@ public class InvitationController extends AnchorPane {
 
 		inviteCmd = "invite " + "#" + groupNameField.getText() + " " + client.getLogin() + " " + inviteCmd;
 		System.out.println(inviteCmd);
-		client.invite(inviteCmd);
+		try {
+			client.invite(inviteCmd);
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		stage.close();
 
 	}

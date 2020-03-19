@@ -9,19 +9,36 @@ import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 public class Client {
 	private final String serverName;
 	private final int serverPort;
 	private Socket socket;
-	private OutputStream serverOut;
-	private InputStream serverIn;
-	private BufferedReader bufferedIn;
+	// private OutputStream serverOut;
+	// private BufferedReader bufferedIn;
 	private String login;
+	private ObjectOutputStream objectServerOut;
 	private ObjectInputStream objectServerIn;
 
 	private ArrayList<UserStatusListener> userStatusListeners = new ArrayList<>();
 	private ArrayList<MessageListener> messageListeners = new ArrayList<>();
+	private HashMap<String, ArrayList<Question>> questionMap = new HashMap<>();
+	private HashMap<String, ArrayList<Messages>> messageMap = new HashMap<>();
+
+	/**
+	 * @return the messageMap
+	 */
+	public HashMap<String, ArrayList<Messages>> getMessageMap() {
+		return messageMap;
+	}
+
+	/**
+	 * @return the questionMap
+	 */
+	public HashMap<String, ArrayList<Question>> getQuestionMap() {
+		return questionMap;
+	}
 
 	public Client(String serverName, int serverPort) {
 		this.serverName = serverName;
@@ -30,71 +47,93 @@ public class Client {
 	}
 
 	public void msg(String sendTo, String msgBody) throws IOException {
-		String cmd = "msg " + sendTo + " " + msgBody + "\n";
-		serverOut.write(cmd.getBytes());
+		String cmd = "msg " + sendTo + " " + msgBody;
+		objectServerOut.writeObject(cmd);
 	}
 
 	public void logoff() throws IOException {
 		String cmd = "logoff" + "\n";
-		serverOut.write(cmd.getBytes());
+		objectServerOut.writeObject(cmd);
 	}
 
-	public boolean login(String login, String password) throws IOException {
+	public boolean login(String login, String password) throws IOException, ClassNotFoundException {
 		String cmd = "login " + login + " " + password + "\n";
-		serverOut.write(cmd.getBytes());
-		String response = bufferedIn.readLine();
-		System.out.println("Response Line: " + response);
+		objectServerOut.writeObject(cmd);
 
-		if ("ok login".equalsIgnoreCase(response)) {
-			startMessageReader();
-			this.login = login;
+		Object obj = objectServerIn.readObject();
 
-			return true;
-		} else {
-			return false;
+		if (obj != null) {
+			String response = (String) obj;
+			System.out.println("Response Line: " + response);
+			if ("ok login\n".equalsIgnoreCase(response)) {
+				startMessageReader();
+				this.login = login;
+				return true;
+			} else {
+				return false;
+			}
 		}
+		return false;
+
 	}
 
-	public String register(String login, String password, String password2) throws IOException {
+	public String register(String login, String password, String password2) throws IOException, ClassNotFoundException {
 		String cmd = "register " + login + " " + password + " " + password2 + "\n";
-		serverOut.write(cmd.getBytes());
-		String response = bufferedIn.readLine();
-		System.out.println("Response Line: " + response);
+		objectServerOut.writeObject(cmd);
+		Object obj = objectServerIn.readObject();
+		String response = "";
+		if (obj != null) {
+			response = (String) obj;
+			System.out.println("Response Line: " + response);
+		}
 		return response;
 	}
 
 	// format: invite #topic <user1> <user2>
-	public boolean invite(String inviteCmd) throws IOException {
+	public boolean invite(String inviteCmd) throws IOException, ClassNotFoundException {
 		String[] inviteTokens = StringUtils.split(inviteCmd);
 		if (inviteTokens[1].charAt(0) != '#') {
 			return false;
 		}
-		// if lose "\n",server will be always waiting
-		serverOut.write((inviteCmd + "\n").getBytes());
-		String response = bufferedIn.readLine();
-		System.out.println("Response Line: " + response);
+		objectServerOut.writeObject(inviteCmd);
+		return true;
+//		Object obj = objectServerIn.readObject();
+//		if (obj != null) {
+//			String response = (String) obj;
+//			System.out.println("Response Line: " + response);
+//			if ("ok invited\n".equalsIgnoreCase(response)) {
+//				return true;
+//			} else {
+//				return false;
+//			}
+//		}
+//		return false;
 
-		if ("ok invited".equalsIgnoreCase(response)) {
-			return true;
-		} else {
-			return false;
-		}
 	}
 
 	private void startMessageReader() {
-		Thread t = new Thread() {
+		Thread readLoop = new Thread() {
 			@Override
 			public void run() {
-				readMessageLoop();
+				try {
+					readMessageLoop();
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		};
-		t.start();
+		readLoop.start();
 	}
 
-	private void readMessageLoop() {
+	private void readMessageLoop() throws ClassNotFoundException {
 		try {
 			String line;
-			while ((line = bufferedIn.readLine()) != null) {
+			Object buf;
+			while (true) {
+				buf = objectServerIn.readObject();
+				line = (String) buf;
+
 				String[] tokens = StringUtils.split(line);
 				if (tokens != null && tokens.length > 0) {
 					String cmd = tokens[0];
@@ -105,6 +144,30 @@ public class Client {
 					} else if ("msg".equalsIgnoreCase(cmd)) {
 						String[] tokensMsg = StringUtils.split(line, null, 4);
 						handleMessage(tokensMsg);
+					} else if ("questions".equalsIgnoreCase(cmd)) {
+						ArrayList<Question> questions = new ArrayList<Question>();
+						Object obj = objectServerIn.readObject();
+
+						System.out.println("questions obj received");
+
+						if (obj != null) {
+							questions = (ArrayList<Question>) obj;
+							System.out.println("questions got. ");
+						}
+						String topicName = tokens[1];
+						questionMap.put(topicName, questions);
+					} else if ("history".equalsIgnoreCase(cmd)) {
+						ArrayList<Messages> msg = new ArrayList<Messages>();
+						Object obj = objectServerIn.readObject();
+
+						System.out.println("messages obj received");
+
+						if (obj != null) {
+							msg = (ArrayList<Messages>) obj;
+							System.out.println("history got. ");
+						}
+						String sendTo = tokens[1];
+						messageMap.put(sendTo, msg);
 					}
 				}
 			}
@@ -120,40 +183,29 @@ public class Client {
 	}
 
 	// format: "history" <user1> <user2>
-	public ArrayList<Messages> getChatHistory(String sendTo) throws IOException, ClassNotFoundException {
-		String historyCmd = "history " + login +" "+ sendTo + "\n";
-		serverOut.write((historyCmd).getBytes());
-//		String response = bufferedIn.readLine();
-//		System.out.println("Response Line: " + response);
-		
-		ArrayList<Messages> history = new ArrayList<Messages>();
-		Object obj= objectServerIn.readObject();
-		
-		if (obj != null) {
-			history = (ArrayList<Messages>)obj;
-			System.out.println("history got. ");
-		}
+	public void getChatHistory(String sendTo) throws IOException, ClassNotFoundException {
+		String historyCmd = "history " + login + " " + sendTo + "\n";
 
-		return history;
+		objectServerOut.writeObject(historyCmd);
+//
+//		ArrayList<Messages> history = new ArrayList<Messages>();
+//		Object obj = objectServerIn.readObject();
+//
+//		if (obj != null) {
+//			history = (ArrayList<Messages>) obj;
+//			System.out.println("history got. ");
+//		}
+//
+//		return history;
 	}
 
-	public ArrayList<Question> getQuestions(String TopicName) throws IOException, ClassNotFoundException {
-		String getQuestionCmd = "getQuestions " + TopicName + "\n";
-		serverOut.write((getQuestionCmd).getBytes());
-//		String response = bufferedIn.readLine();
-//		System.out.println("Response Line: " + response);
-		
-		ArrayList<Question> questions = new ArrayList<Question>();
-		Object obj= objectServerIn.readObject();
-		
-		System.out.println("obj received");
-		
-		if (obj != null) {
-			questions = (ArrayList<Question>)obj;
-			System.out.println("questions got. ");
+	public void send(String cmd) {
+		try {
+			objectServerOut.writeObject(cmd);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-
-		return questions;
 	}
 
 	private void handleMessage(String[] tokensMsg) {
@@ -188,10 +240,11 @@ public class Client {
 		try {
 			this.socket = new Socket(serverName, serverPort);
 			System.out.println("Client port is " + socket.getLocalPort());
-			this.serverOut = socket.getOutputStream();
-			this.serverIn = socket.getInputStream();
-			this.bufferedIn = new BufferedReader(new InputStreamReader(serverIn));
-			this.objectServerIn = new ObjectInputStream(serverIn);
+			// this.serverOut = socket.getOutputStream();
+			// this.bufferedIn = new BufferedReader(new
+			// InputStreamReader(socket.getInputStream()));
+			this.objectServerOut = new ObjectOutputStream(socket.getOutputStream());
+			this.objectServerIn = new ObjectInputStream(socket.getInputStream());
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -217,43 +270,6 @@ public class Client {
 
 	public void removeaMessageListener(MessageListener listener) {
 		messageListeners.remove(listener);
-	}
-
-	public static void main(String[] args) throws IOException {
-		Client client = new Client("localhost", 8818);
-		client.addUserStatusListener(new UserStatusListener() {
-			@Override
-			public void online(String login) {
-				System.out.println("ONLINE: " + login);
-			}
-
-			@Override
-			public void offline(String login) {
-				System.out.println("OFFLINE: " + login);
-
-			}
-		});
-		client.addMessageListener(new MessageListener() {
-			@Override
-			public void onMessage(String fromLogin, String msgBody, String msgTimeStamp) {
-				System.out.println("You got a message from " + fromLogin + " ===>" + msgBody + " " + msgTimeStamp);
-			}
-		});
-
-		if (!client.connect()) {
-			System.err.println("Connect failed");
-		} else {
-			System.out.println("Connect successful");
-
-			if (client.login("guest", "guest")) {
-				System.out.println("Login successful");
-
-				client.msg("DP", "hello world!");
-			} else {
-				System.out.println("Login failed");
-			}
-			// client.logoff();
-		}
 	}
 
 }

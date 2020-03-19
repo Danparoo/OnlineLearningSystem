@@ -3,7 +3,7 @@ package Database;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
-public class Messages implements Serializable {
+public class Messages implements Serializable, Comparable<Messages>{
 	private int messageid;
 	private String postcontent,fromuser,touser;
 	private Timestamp sendtime;
@@ -89,6 +89,11 @@ public class Messages implements Serializable {
 	public String toString() {
 		return "Messages [messageid=" + messageid + ", fromuser=" + fromuser + ", touser=" + touser
 				+ ", postcontent=" + postcontent + ", sendtime=" + sendtime + "]\n";
+	}
+
+	@Override
+	public int compareTo(Messages msg) {
+		return this.getSendtime().compareTo(msg.getSendtime());
 	}
 	
 	

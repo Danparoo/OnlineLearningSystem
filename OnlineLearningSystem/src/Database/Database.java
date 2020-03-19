@@ -259,9 +259,9 @@ public class Database {
 //	  insertNewUser("zoro", null, "kuyina", "student", null, null, null, null);
 //	  Messages message1=new Messages(1, 4, "Hi,welcome", null);
 //	  insertMessage(message1);
-	  retrieveMessages1(1);
+//	  retrieveMessages1(1);
 //	  retrieveMessages2(1);
-	  System.out.println(retrieveMessages1(1).toString());
+//	  System.out.println(retrieveMessages1(1).toString());
 //	  System.out.println(retrieveMessages2(1).toString());
 	  System.out.println(groupExists("boys"));
 //	  insertNewGroup("fighting",3,"3people");
