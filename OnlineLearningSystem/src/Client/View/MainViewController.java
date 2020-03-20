@@ -313,16 +313,23 @@ public class MainViewController extends AnchorPane implements UserStatusListener
 
 	@Override
 	public void offline(String login) {
+		boolean isTopic = login.charAt(0) == '#';
+		if (isTopic) {
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setTitle("Group Chat Ended");
+			alert.setHeaderText("Someone leave the group chat "+login+". So this group chat is ended");
+			// alert.setContentText(message);
+			alert.showAndWait();
+		}
 		userStrList.remove(login);
 		System.out.println(login + " offline");
 		userList.setItems(userStrList);
-
 	}
 
 	@Override
 	public void onMessage(String fromLogin, String msgBody, String msgTimeStamp) {
 		String login = userList.getSelectionModel().getSelectedItem();
-		if (login!=null&&login.equalsIgnoreCase(fromLogin)) {
+		if (login != null && login.equalsIgnoreCase(fromLogin)) {
 			String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(Long.parseLong(msgTimeStamp)));
 			messageStrList.add(fromLogin + ": " + msgBody + " \n" + time);
 			// messageStrList.add(nowtime);

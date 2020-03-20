@@ -175,9 +175,8 @@ public class ServerWorker extends Thread {
 	}
 
 	private void handleJoin(String[] tokens) {
-
-		if (tokens.length > 1 && tokens[1].charAt(0) == '#') {
-			String topic = tokens[1];
+		String topic = tokens[1];
+		if (tokens.length > 1 && tokens[1].charAt(0) == '#'&&(!topicSet.contains(topic))) {
 			topicSet.add(topic);
 			String msg2 = "online " + topic + "\n";
 			send(msg2);
@@ -193,19 +192,20 @@ public class ServerWorker extends Thread {
 
 		boolean isTopic = sendTo.charAt(0) == '#';
 
+		long msgTimeStamp = System.currentTimeMillis();
+		Timestamp t = new Timestamp(msgTimeStamp);
+		Messages msg = new Messages(login, sendTo, body, t);
+		if (isTopic) {
+			Database.insertMessage(msg);
+		}
 		List<ServerWorker> workerList = server.getWorkerList();
 		for (ServerWorker worker : workerList) {
 			if (isTopic) {
 				if (worker.isMemberOfTopic(sendTo) && this.isMemberOfTopic(sendTo)) {
-					long msgTimeStamp = System.currentTimeMillis();
 					String outMsg = "msg " + sendTo + " " + msgTimeStamp + " " + login + ":" + body;
 					worker.send(outMsg);
 				}
 			} else if (sendTo.equalsIgnoreCase(worker.getLogin())) {
-				long msgTimeStamp = System.currentTimeMillis();
-
-				Timestamp t = new Timestamp(msgTimeStamp);
-				Messages msg = new Messages(login, sendTo, body, t);
 				Database.insertMessage(msg);
 				String outMsg = "msg " + login + " " + msgTimeStamp + " " + body;
 				worker.send(outMsg);
@@ -227,7 +227,9 @@ public class ServerWorker extends Thread {
 		clientSocket.close();
 
 		if (!topicSet.isEmpty()) {
+
 			for (String topic : topicSet) {
+				Database.deleteGroupMsg(topic);
 				String topicOfflineMsg = "offline " + topic + "\n";
 				// simply send topicOfflineMsg to every user, which need some moderation
 				for (ServerWorker worker : workerList) {
@@ -294,12 +296,18 @@ public class ServerWorker extends Thread {
 		String fromUser = tokens[1];
 		String toUser = tokens[2];
 
-		ArrayList<Messages> history = Database.retrieveMessages(fromUser, toUser);
-		ArrayList<Messages> history2 = Database.retrieveMessages(toUser, fromUser);
-		history.addAll(history2);
+		boolean isTopic = toUser.charAt(0) == '#';
+		ArrayList<Messages> history = new ArrayList<Messages>();
+		if (isTopic) {
+			history = Database.retrieveGroupMsg(toUser);
+		} else {
+			history = Database.retrieveMessages(fromUser, toUser);
+			ArrayList<Messages> history2 = Database.retrieveMessages(toUser, fromUser);
+			history.addAll(history2);
+		}
 		Collections.sort(history);
-		objectOutputStream.writeObject("history " + toUser);
 
+		objectOutputStream.writeObject("history " + toUser);
 		objectOutputStream.writeObject(history);
 	}
 

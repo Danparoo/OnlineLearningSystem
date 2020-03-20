@@ -60,6 +60,8 @@ public class Database {
 	         }
 	     }
 	     
+
+	     
 	     /**
 	      * Checks if the input username exists in the database.
 	      * @param username Username supplied by the current client.
@@ -162,7 +164,50 @@ public class Database {
 		     		e.printStackTrace();
 		     		return null;
 		     	}
-		     }   
+		     }
+	     
+	     /**
+	      * Gets the group message history for a particular chat.
+	      * @param chatname Name of the chat being queried.
+	      * @return ArrayList of Message objects for the specified chat.
+	      */	     
+	     public static synchronized ArrayList<Messages> retrieveGroupMsg (String touser) {
+		     	try (PreparedStatement statement = connection.prepareStatement(
+		     			"SELECT * FROM messages WHERE touser = ?ORDER BY sendtime DESC"))
+		     	{
+		     		statement.setString(1, touser);
+		     		ResultSet rs = statement.executeQuery();
+		     		ArrayList<Messages> messages = new ArrayList<>();
+		     		
+		     		while(rs.next()) {
+		     			String fromUser= rs.getString("fromuser");
+		     			String toUser= rs.getString("touser");
+		     			String msg = rs.getString("postcontent");
+		     			Timestamp time = rs.getTimestamp("sendtime");
+		     			messages.add(new Messages(fromUser,toUser, msg, time));
+		     		}
+		     		return messages;
+		     	} catch (SQLException e) {
+		     		e.printStackTrace();
+		     		return null;
+		     	}
+		     } 
+	     
+	     /**
+	      * Checks if the input usernames and password combination is contained
+	      * in the database.
+	      * @param chatname of the current client which is String.
+	      * @param password of the input password which is String.
+	      */
+	     public static synchronized void deleteGroupMsg(String topicName){
+	         try (PreparedStatement statement = connection.prepareStatement(
+	         		"DELETE FROM messages WHERE touser = ?")){
+	             statement.setString(1, topicName);
+	             statement.executeUpdate();
+	         } catch (SQLException e) {
+	             e.printStackTrace();
+	         }
+	     }
 	     
 //	     public static synchronized TreeSet<Messages> retrieveMessages2 (int fromuserid) {
 //		     	try (PreparedStatement statement = connection.prepareStatement(
