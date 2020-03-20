@@ -346,7 +346,6 @@ public class MainViewController extends AnchorPane implements UserStatusListener
 			Platform.runLater(() -> {
 				messageStrList.add(fromLogin + ": " + msgBody + " \n" + time);
 			});
-			// messageStrList.add(nowtime);
 			messageList.setItems(messageStrList);
 		}
 //		 else if (userStrList.contains(fromLogin)) {
