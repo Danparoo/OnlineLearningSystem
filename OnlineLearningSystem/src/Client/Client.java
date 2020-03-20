@@ -20,6 +20,8 @@ public class Client {
 	private String login;
 	private ObjectOutputStream objectServerOut;
 	private ObjectInputStream objectServerIn;
+	// flag = 1 means there is something doing, GUI should wait
+	// private int flag = 0;
 
 	private ArrayList<UserStatusListener> userStatusListeners = new ArrayList<>();
 	private ArrayList<MessageListener> messageListeners = new ArrayList<>();
@@ -97,18 +99,6 @@ public class Client {
 		}
 		objectServerOut.writeObject(inviteCmd);
 		return true;
-//		Object obj = objectServerIn.readObject();
-//		if (obj != null) {
-//			String response = (String) obj;
-//			System.out.println("Response Line: " + response);
-//			if ("ok invited\n".equalsIgnoreCase(response)) {
-//				return true;
-//			} else {
-//				return false;
-//			}
-//		}
-//		return false;
-
 	}
 
 	private void startMessageReader() {
@@ -131,44 +121,49 @@ public class Client {
 			String line;
 			Object buf;
 			while (true) {
-				buf = objectServerIn.readObject();
-				line = (String) buf;
+				try {
+					buf = objectServerIn.readObject();
+					line = (String) buf;
 
-				String[] tokens = StringUtils.split(line);
-				if (tokens != null && tokens.length > 0) {
-					String cmd = tokens[0];
-					if ("online".equalsIgnoreCase(cmd)) {
-						handleOnline(tokens);
-					} else if ("offline".equalsIgnoreCase(cmd)) {
-						handleOffline(tokens);
-					} else if ("msg".equalsIgnoreCase(cmd)) {
-						String[] tokensMsg = StringUtils.split(line, null, 4);
-						handleMessage(tokensMsg);
-					} else if ("questions".equalsIgnoreCase(cmd)) {
-						ArrayList<Question> questions = new ArrayList<Question>();
-						Object obj = objectServerIn.readObject();
+					String[] tokens = StringUtils.split(line);
+					if (tokens != null && tokens.length > 0) {
+						String cmd = tokens[0];
+						if ("online".equalsIgnoreCase(cmd)) {
+							handleOnline(tokens);
+						} else if ("offline".equalsIgnoreCase(cmd)) {
+							handleOffline(tokens);
+						} else if ("msg".equalsIgnoreCase(cmd)) {
+							String[] tokensMsg = StringUtils.split(line, null, 4);
+							handleMessage(tokensMsg);
+						} else if ("questions".equalsIgnoreCase(cmd)) {
+							ArrayList<Question> questions = new ArrayList<Question>();
+							Object obj = objectServerIn.readObject();
 
-						System.out.println("questions obj received");
+							System.out.println("questions obj received");
 
-						if (obj != null) {
-							questions = (ArrayList<Question>) obj;
-							System.out.println("questions got. ");
+							if (obj != null) {
+								questions = (ArrayList<Question>) obj;
+								System.out.println("questions got. ");
+							}
+							String topicName = tokens[1];
+							questionMap.put(topicName, questions);
+						} else if ("history".equalsIgnoreCase(cmd)) {
+							ArrayList<Messages> msg = new ArrayList<Messages>();
+							Object obj = objectServerIn.readObject();
+
+							System.out.println("messages obj received");
+
+							if (obj != null) {
+								msg = (ArrayList<Messages>) obj;
+								System.out.println("history got. ");
+							}
+							String sendTo = tokens[1];
+							messageMap.put(sendTo, msg);
 						}
-						String topicName = tokens[1];
-						questionMap.put(topicName, questions);
-					} else if ("history".equalsIgnoreCase(cmd)) {
-						ArrayList<Messages> msg = new ArrayList<Messages>();
-						Object obj = objectServerIn.readObject();
-
-						System.out.println("messages obj received");
-
-						if (obj != null) {
-							msg = (ArrayList<Messages>) obj;
-							System.out.println("history got. ");
-						}
-						String sendTo = tokens[1];
-						messageMap.put(sendTo, msg);
 					}
+				} catch (EOFException e) {
+					System.out.println("Loop ended");
+					break;
 				}
 			}
 		} catch (IOException e) {
@@ -185,23 +180,28 @@ public class Client {
 	// format: "history" <user1> <user2>
 	public void getChatHistory(String sendTo) throws IOException, ClassNotFoundException {
 		String historyCmd = "history " + login + " " + sendTo + "\n";
-
 		objectServerOut.writeObject(historyCmd);
-//
-//		ArrayList<Messages> history = new ArrayList<Messages>();
-//		Object obj = objectServerIn.readObject();
-//
-//		if (obj != null) {
-//			history = (ArrayList<Messages>) obj;
-//			System.out.println("history got. ");
-//		}
-//
-//		return history;
 	}
 
 	public void send(String cmd) {
 		try {
 			objectServerOut.writeObject(cmd);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public void getQuestion(String cmd) {
+		try {
+			objectServerOut.writeObject(cmd);
+//			flag = 1;
+//			while (true) {
+//				if (flag == 0)
+//					break;
+//			}
+			System.out.println("while ended");
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -240,9 +240,6 @@ public class Client {
 		try {
 			this.socket = new Socket(serverName, serverPort);
 			System.out.println("Client port is " + socket.getLocalPort());
-			// this.serverOut = socket.getOutputStream();
-			// this.bufferedIn = new BufferedReader(new
-			// InputStreamReader(socket.getInputStream()));
 			this.objectServerOut = new ObjectOutputStream(socket.getOutputStream());
 			this.objectServerIn = new ObjectInputStream(socket.getInputStream());
 			return true;

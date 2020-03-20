@@ -92,6 +92,8 @@ public class ServerWorker extends Thread {
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			} catch (IOException io) {
+				io.printStackTrace();
 			}
 		}
 
@@ -176,7 +178,7 @@ public class ServerWorker extends Thread {
 
 	private void handleJoin(String[] tokens) {
 		String topic = tokens[1];
-		if (tokens.length > 1 && tokens[1].charAt(0) == '#'&&(!topicSet.contains(topic))) {
+		if (tokens.length > 1 && tokens[1].charAt(0) == '#' && (!topicSet.contains(topic))) {
 			topicSet.add(topic);
 			String msg2 = "online " + topic + "\n";
 			send(msg2);

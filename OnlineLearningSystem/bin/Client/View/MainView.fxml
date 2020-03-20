@@ -111,7 +111,7 @@
                                              <children>
                                                 <Button layoutX="8.0" layoutY="221.0" mnemonicParsing="false" onAction="#lastQue" text="last" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" />
                                                 <Button fx:id="nextQueButton" layoutX="260.0" layoutY="222.0" mnemonicParsing="false" onAction="#nextQue" text="Next" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" />
-                                                <Text fx:id="questionContent" layoutX="45.0" layoutY="139.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" wrappingWidth="238.22900390625">
+                                                <Text fx:id="questionContent" layoutX="45.0" layoutY="139.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Please select a Topic" wrappingWidth="238.22900390625">
                                                    <font>
                                                       <Font size="23.0" />
                                                    </font>

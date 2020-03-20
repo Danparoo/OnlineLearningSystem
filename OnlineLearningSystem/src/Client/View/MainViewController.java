@@ -11,6 +11,7 @@ import Client.MessageListener;
 import Client.UserStatusListener;
 import Database.Messages;
 import Database.Question;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -95,7 +96,6 @@ public class MainViewController extends AnchorPane implements UserStatusListener
 					try {
 						Thread.currentThread().sleep(500);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					ArrayList<Messages> history = client.getMessageMap().get(newValue);
@@ -106,10 +106,10 @@ public class MainViewController extends AnchorPane implements UserStatusListener
 							if (msg.getFromuser().equalsIgnoreCase(client.getLogin())) {
 								messageStrList.add("You: " + msg.getPostcontent() + " \n" + time);
 								messageList.setItems(messageStrList);
+							} else {
+								messageStrList.add(msg.getFromuser() + ": " + msg.getPostcontent() + " \n" + time);
+								messageList.setItems(messageStrList);
 							}
-							messageStrList.add(msg.getFromuser() + ": " + msg.getPostcontent() + " \n" + time);
-							messageList.setItems(messageStrList);
-
 						}
 					}
 				} catch (ClassNotFoundException e) {
@@ -144,7 +144,7 @@ public class MainViewController extends AnchorPane implements UserStatusListener
 //					Thread getQuestions = new Thread() {
 //						@Override
 //						public void run() {
-//							client.send("getQuestions " + newValue);
+//							client.getQuestion("getQuestions " + newValue);
 //						}
 //					};
 //					getQuestions.start();
@@ -192,12 +192,20 @@ public class MainViewController extends AnchorPane implements UserStatusListener
 	public void sendMessage() throws IOException {
 		String text = messageArea.getText();
 		String login = userList.getSelectionModel().getSelectedItem();
-		client.msg(login, text);
-		String nowtime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-		if (!(login.charAt(0) == '#')) {
-			messageStrList.add("You: " + text + "\n" + nowtime);
-			// messageStrList.add(nowtime);
-			messageList.setItems(messageStrList);
+		if (login != null) {
+			client.msg(login, text);
+			String nowtime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+			if (!(login.charAt(0) == '#')) {
+				messageStrList.add("You: " + text + "\n" + nowtime);
+				// messageStrList.add(nowtime);
+				messageList.setItems(messageStrList);
+			}
+		} else {
+			Alert alert = new Alert(AlertType.ERROR);
+			alert.setTitle("Error");
+			alert.setHeaderText("Please select one user to msg. ");
+			// alert.setContentText(message);
+			alert.showAndWait();
 		}
 
 		messageArea.setText("");
@@ -272,7 +280,6 @@ public class MainViewController extends AnchorPane implements UserStatusListener
 			alert.setHeaderText("You got " + score + "/" + answer.length + " marks!");
 			// alert.setContentText(message);
 			alert.showAndWait();
-			nextQueButton.setText("Next");
 		}
 
 	}
@@ -306,22 +313,27 @@ public class MainViewController extends AnchorPane implements UserStatusListener
 
 	@Override
 	public void online(String login) {
-		userStrList.add(login);
+		Platform.runLater(() -> {
+			userStrList.add(login);
+		});
+
 		System.out.println(login + " online");
 		userList.setItems(userStrList);
 	}
 
 	@Override
 	public void offline(String login) {
-		boolean isTopic = login.charAt(0) == '#';
-		if (isTopic) {
-			Alert alert = new Alert(AlertType.INFORMATION);
-			alert.setTitle("Group Chat Ended");
-			alert.setHeaderText("Someone leave the group chat "+login+". So this group chat is ended");
-			// alert.setContentText(message);
-			alert.showAndWait();
-		}
-		userStrList.remove(login);
+//		boolean isTopic = login.charAt(0) == '#';
+//		if (isTopic) {
+//			Alert alert = new Alert(AlertType.INFORMATION);
+//			alert.setTitle("Group Chat Ended");
+//			alert.setHeaderText("Someone leave the group chat "+login+". So this group chat is ended");
+//			// alert.setContentText(message);
+//			alert.showAndWait();
+//		}
+		Platform.runLater(() -> {
+			userStrList.remove(login);
+		});
 		System.out.println(login + " offline");
 		userList.setItems(userStrList);
 	}
@@ -331,7 +343,9 @@ public class MainViewController extends AnchorPane implements UserStatusListener
 		String login = userList.getSelectionModel().getSelectedItem();
 		if (login != null && login.equalsIgnoreCase(fromLogin)) {
 			String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(Long.parseLong(msgTimeStamp)));
-			messageStrList.add(fromLogin + ": " + msgBody + " \n" + time);
+			Platform.runLater(() -> {
+				messageStrList.add(fromLogin + ": " + msgBody + " \n" + time);
+			});
 			// messageStrList.add(nowtime);
 			messageList.setItems(messageStrList);
 		}
